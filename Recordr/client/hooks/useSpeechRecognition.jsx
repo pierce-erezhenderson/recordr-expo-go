@@ -41,6 +41,13 @@ const useSpeechRecognition = () => {
         setRecognize(false);
     };
 
+    const cancelRecording = async () => {
+        console.log('Cancelling recording...');
+        setRecording(undefined);
+        await recording.stopAndUnloadAsync();
+        setRecognize(false);
+    };
+
     const processAudioFile = async (uri) => {
       try {
         console.log('Processing audio file...');
@@ -85,6 +92,7 @@ const useSpeechRecognition = () => {
         transcription,
         serverResponse,
         isProcessing,
+        cancelRecording
     };
 };
 

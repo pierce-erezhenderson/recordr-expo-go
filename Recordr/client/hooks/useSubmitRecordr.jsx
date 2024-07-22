@@ -4,7 +4,7 @@ import { useSuccess } from '../utils/SuccessContext';
 
 const useSubmitRecordr = async ({ transcription }) => {
     const { setSuccess } = useSuccess();
-    const [loading, setLoading] = useState(false);
+    const { setLoading } = useLoading();
 
     const submitTranscription = async (transcription) => {
         setLoading(true);
@@ -23,11 +23,15 @@ const useSubmitRecordr = async ({ transcription }) => {
 
             const data = await response.json();
             setLoading(false);
+            setSuccess(true);
             return data;
 
         } catch (error) {
             console.error('Error saving note:', error);
+            setLoading(false);
         }
     }
+    return { submitTranscription, loading, error };
+};
 
 export default useSubmitRecordr;

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Image, View, StyleSheet } from 'react-native';
+
 
 const ImageCycler = ({ recognize }) => {
     
@@ -17,15 +18,20 @@ const ImageCycler = ({ recognize }) => {
 
     const [currentIndex, setCurrentIndex] = useState(0);
 
+    const images = useMemo(() => recognize ? recordImages : starterImages, [recognize]);
+
     useEffect(() => {
         const interval = setInterval(() => {
-            setCurrentIndex((prevIndex) => (prevIndex + 1) % (recognize ? recordImages : starterImages.length));
+            setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
         }, 500);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [recognize, images]);
     
-    const images = recognize ? recordImages : starterImages;
+    useEffect(() => {
+        // Reset index when switching between starter and record images
+        setCurrentIndex(0);
+    }, [recognize]);
 
     return(
         <View style={styles.container}>
@@ -35,10 +41,6 @@ const ImageCycler = ({ recognize }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     image: {
         width: 350,
         height: 350,
