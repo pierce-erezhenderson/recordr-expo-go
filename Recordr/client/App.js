@@ -4,7 +4,8 @@ import { useFonts } from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
 import { RecognizeProvider } from './utils/RecognizeContext.jsx';
 import RecognizeScreen from './screens/RecognizeScreen.jsx';
-import { useRecognize } from "./utils/RecognizeContext.jsx";
+import { RecognizeProvider } from "./utils/RecognizeContext.jsx";
+import { SuccessProvider } from "./utils/SuccessContext.jsx";
 import { API_URL } from './services/apiService'; 
 import AppLoading from 'expo-app-loading';
 
@@ -12,7 +13,8 @@ const Stack = createStackNavigator();
 
 console.log('App started. API_URL:', API_URL);
 
-export default function App() {
+
+export default function App() {        // get rid of this it's not doing much!
     
     let [fontsLoaded] = useFonts({
         'SuisseScreen-Regular': require('./assets/SuisseScreen-Regular.ttf'),
@@ -33,19 +35,19 @@ export default function App() {
 
 function UI() {
 
-    const { recognize } = useRecognize();
-
     return (
         <RecognizeProvider>
-            <NavigationContainer>
-                <Stack.Navigator initialRouteName="Recognize">
-                    <Stack.Screen 
-                        name="Recognize" 
-                        component={RecognizeScreen} 
-                        options={{ headerShown: !recognize ? false : true,}}
-                    />
-                </Stack.Navigator>
-            </NavigationContainer>
+          <SuccessProvider>
+              <NavigationContainer>
+                  <Stack.Navigator initialRouteName="Recognize">
+                      <Stack.Screen 
+                          name="Recognize" 
+                          component={RecognizeScreen} 
+                          options={{ headerShown: false}}
+                      />
+                  </Stack.Navigator>
+              </NavigationContainer>
+          </SuccessProvider>
         </RecognizeProvider>
   );
 }

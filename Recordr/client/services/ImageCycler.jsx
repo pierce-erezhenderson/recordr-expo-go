@@ -23,7 +23,7 @@ const ImageCycler = ({ recognize }) => {
         }, 500);
 
         return () => clearInterval(interval);
-    }, [recognize, recordImages, starterImages]);
+    }, []);
     
     const images = recognize ? recordImages : starterImages;
 

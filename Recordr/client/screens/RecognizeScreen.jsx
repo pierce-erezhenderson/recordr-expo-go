@@ -1,19 +1,19 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useRecognize } from "../utils/RecognizeContext";
-import NotetakingControlPanel from "../components/NoteTakingControlPanel";
+import Recordr from "../components/Recordr";
 
 const RecognizeScreen = ({ navigation }) => {
   const { recognize } = useRecognize();
 
   const containerStyle = [
     styles.container,
-    { backgroundcolor: !recognize ? '#d2cdcb' : '#f2d8c6' }
+    { backgroundColor: !recognize ? '#d2cdcb' : '#b6c299' }
   ];
   
   return (
         <View style={containerStyle}>
-            <NotetakingControlPanel />
+            <Recordr />
         </ View>
     );
 };
@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      border: '1px solid black',
     },
   });
 

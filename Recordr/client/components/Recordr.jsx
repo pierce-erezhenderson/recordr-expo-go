@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+// import React, { useEffect, useState } from 'react';
 import { 
     Text, 
     TextInput, 
@@ -9,38 +9,28 @@ import {
     Keyboard,
     SafeAreaView
 } from 'react-native';
-import { useRecognize } from "../utils/RecognizeContext";
+import { useRecognize } from "../utils/RecognizeContext.jsx";
 import Svg, { G, Path, Polygon } from 'react-native-svg';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import ImageCycler from '../services/ImageCycler'
 
-//UI components
+// UI components
 import { Card } from 'react-native-paper';
 
 
+
+// --------*** Recordr ***--------
+
 const Recordr = () => {
-    const { recognize, setRecognize } = useState();
+    const { recognize, setRecognize } = useRecognize();
     const { 
         startRecording, 
         stopRecording, 
-        isRecording, 
+        // isRecording, 
         transcription, 
         setTranscription, 
         serverResponse 
     } = useSpeechRecognition()
-
-    const handleStartRecording = () => {
-        if (!isRecording) {
-            startRecording();
-            setRecognize(true);
-        }
-    };
-
-    const handleStopRecording = () => {
-        if (isRecording) {
-            stopRecording();
-        }
-    };
 
     const updateField = (field) => (text) => {
         setTranscription(prevState => ({
@@ -49,15 +39,18 @@ const Recordr = () => {
         }));
     };
 
-    // Starter UI
+    const submitAllFields = (transcription) => {
+        useSubmitRecordr(transcription);
+    };
+
+    // -------- Starter UI --------
+
     const renderStarterContent = () => (
         <SafeAreaView style={styles.safeArea}>
         <View style={styles.starterContainer}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.starterHeader}>Click below{'\n'}to record a note!</Text>
-            </View>
+            <Text style={styles.starterHeader}>Click below{'\n'}to record a note!</Text>
             <ImageCycler style={styles.imageCycler} />
-            <TouchableOpacity style={styles.recordButton} onPress={handleStartRecording}>
+            <TouchableOpacity style={styles.recordButton} onPress={startRecording}>
                 <Text style={styles.recordButtonText}>Record</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.goToInvoicesButton} onPress={{/* Navigate to invoices page*/}}>
@@ -77,10 +70,12 @@ const Recordr = () => {
         </SafeAreaView>
     );
 
-    // Recognize UI
+
+    // -------- Recognize UI --------
+
     const renderRecognizeContent = () => (
         <View style={styles.recognizeContainer}>
-            <View >
+            <View style={styles.recognizeHeaderContainer}>
             <ImageCycler recognize={recognize} />
             </View>
             <View style={styles.instructionContainer} >
@@ -90,15 +85,30 @@ const Recordr = () => {
                 <TouchableOpacity
                     style={styles.doneButton}
                     activeOpacity={0.4}
-                    onPress={handleStopRecording}
+                    onPress={stopRecording}
                 >
                     <Text style={styles.doneButtonText} >Done</Text>
                 </TouchableOpacity>
             </View>
+            <TouchableOpacity style={styles.goToInvoicesButton} onPress={{/* Navigate to invoices page*/}}>
+                <View style={styles.goToInvoicesButtonContainer}>
+                    <Svg width={20} height={20}  viewBox="0 0 16.38 20.47">
+                        <G fill="#616263" stroke-width="0">
+                            <Polygon points="16.38 16.18 4.5 16.18 4.5 0 12.85 0 12.85 1 5.5 1 5.5 15.18 15.38 15.18 15.38 3.53 16.38 3.53 16.38 16.18" />
+                            <Polygon points="11.88 20.47 0 20.47 0 4.29 3 4.29 3 5.29 1 5.29 1 19.47 10.88 19.47 10.88 17.68 11.88 17.68 11.88 20.47" />
+                            <Polygon points="14.43 5.29 11.29 5.29 11.29 2.15 12.29 2.15 12.29 4.29 14.43 4.29 14.43 5.29" />
+                            <Path d="M16.38,16.18H4.5V0h8.97l2.91,3.34v12.84ZM5.5,15.18h9.88V3.72l-2.37-2.72h-7.51v14.18Z" />
+                        </G>
+                    </Svg>
+                    <Text style={styles.goToInvoicesButtonText}>Go to invoices</Text>
+                </View>
+            </TouchableOpacity>
         </View>
     );
 
-    // Transcription UI
+
+    // -------- Transcription UI --------
+
     const renderTranscription = () => (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={styles.container}>
@@ -130,7 +140,9 @@ const Recordr = () => {
       </TouchableWithoutFeedback>
     );
 
-    // If/elif/else loop to render either Starter, Recognize, for Transcription via states
+
+    // -------- Render loop --------
+    
     const renderContent = () => {
         if (serverResponse) {
             return renderTranscription();
@@ -148,27 +160,53 @@ const Recordr = () => {
     );
 };
 
-// Styles
+
+
+// --------*** Styles ***--------
+
 const styles = StyleSheet.create({
+
+
+    // -------- General styles --------
 
     recordrContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
+    goToInvoicesButton: {
+        width: 130,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    goToInvoicesButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    goToInvoicesButtonText: {
+        color: '#38332f',
+        fontFamily: 'SuisseScreen-Regular',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginLeft: 10,
+    },
     
-    // Starter styles
+
+    // -------- Starter UI styles --------
+
     starterContainer: {
         alignItems: 'center',
         justifyContent: 'center',
     },
     starterHeader: {
-        fontFamily: 'SuisseWorks-Bold', // Suisse Works
+        fontFamily: 'SuisseWorks-Bold',
         fontSize: 35,
         lineHeight: 35,
         textAlign: 'center',
         color: '#38332f',
-        marginTop: 50,
+        marginTop: 50, // drops the header down a bit
         marginBottom: 40,
     },
     imageCycler: {
@@ -189,62 +227,36 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: 'bold',
     },
-    goToInvoicesButton: {
-        width: 130,
-        height: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    goToInvoicesButtonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    goToInvoicesButtonText: {
-        color: '#38332f',
-        fontFamily: 'SuisseScreen-Regular',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginLeft: 10,
-    },
 
-    // Recognize Styles
+
+    // -------- Recognize UI Styles --------
+
     recognizeContainer: {
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 50,
         
     },
-    initialContainer: {
-        marginTop: 50,
-    },
-    initialText: {
-        fontFamily: 'Arial',
-        fontSize: 22,
-        fontWeight: 'bold',
-        lineHeight: 35,
-        textAlign: 'center',
-        color: '#58504a',
-        marginBottom: 100,
+    recognizeHeaderContainer: {
+        marginTop: 50, // drops the image down a bit
     },
     instructionContainer: {
-        marginTop: 50,
+        marginTop: 20,
     },
     instructionText: {
-        fontFamily: 'Arial',
-        fontSize: 22,
-        fontWeight: 'bold',
+        fontFamily: 'SuisseScreen-Regular',
+        fontSize: 23,
         lineHeight: 35,
+        color: '#47522b',
         textAlign: 'center',
         marginBottom: 50,
-        color: '#d65027',
     },
     doneButtonContainer: {
         alignItems: 'center',
         justifyContent: 'center',
     },
     doneButton: {
-        backgroundColor: '#d65027',
+        backgroundColor: '#535f36',
         borderRadius: 25,
         width: 180,
         height: 75,
@@ -258,7 +270,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    // Transcription styles
+    
+    // -------- Transcription UI styles --------
+
     cardContainer: {
         width: 350,
         height: 400,

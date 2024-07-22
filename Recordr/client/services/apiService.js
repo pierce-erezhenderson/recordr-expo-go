@@ -3,19 +3,20 @@ import Constants from 'expo-constants';
 
 const getApiUrl = () => {
   if (__DEV__) {
-    // For Expo Go
-    if (Constants.expoConfig?.hostUri) {
-      const host = Constants.expoConfig.hostUri.split(':')[0];
-      return `http://${host}:3000`;
-    }
+    return 'https://8f9d-172-59-220-244.ngrok-free.app';
+    // // For Expo Go
+    // if (Constants.expoConfig?.hostUri) {
+    //   const host = Constants.expoConfig.hostUri.split(':')[0];
+    //   return `http://${host}:3000`;
+    // }
     
-    // Fallback for Android emulator
-    if (Platform.OS === 'android') {
-      return 'http://10.0.2.2:3000';
-    }
+    // // Fallback for Android emulator
+    // if (Platform.OS === 'android') {
+    //   return 'http://10.0.2.2:3000';
+    // }
     
-    // Fallback for iOS devices (including physical devices)
-    return 'http://localhost:3000';
+    // // Fallback for iOS devices (including physical devices)
+    // return 'http://localhost:3000';
   } else {
     // For production - replace with your actual production API URL
     return 'https://your-production-api.com';
