@@ -26,17 +26,19 @@
     "expo-crypto": "~13.0.2",
     "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
+    "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.414.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.3",
     "react-native-config": "^1.5.2",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-paper": "^5.12.3",
     "react-native-svg": "15.2.0",
     "react-native-voice": "^0.3.0",
-    "react-native-web": "~0.19.10",
-    "expo-splash-screen": "~0.27.5"
+    "react-native-web": "~0.19.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

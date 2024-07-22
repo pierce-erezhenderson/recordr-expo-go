@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 
 const getApiUrl = () => {
   if (__DEV__) {
-    return 'https://8f9d-172-59-220-244.ngrok-free.app';
+    return 'https://recordr.ngrok.dev';
     // // For Expo Go
     // if (Constants.expoConfig?.hostUri) {
     //   const host = Constants.expoConfig.hostUri.split(':')[0];
@@ -29,7 +29,7 @@ console.log('API_URL:', API_URL); // Log the API_URL for debugging
 
 export const speechApi = {
   transcribe: (audioChunk, isLastChunk) => {
-    return fetch(`${API_URL}/api/createRecordrNote`, {
+    return fetch(`${API_URL}/api/generateRecordrNote`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

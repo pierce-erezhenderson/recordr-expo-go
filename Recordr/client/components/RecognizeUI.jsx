@@ -3,7 +3,16 @@ import Svg, { G, Path, Polygon } from 'react-native-svg';
 import ImageCycler from './ImageCycler';
 import RecordingSignal from './RecordingSignal';
 
-const RecognizeUI = ({recognize, handleSetLoading, handleRedo}) => (
+const RecognizeUI = ({recognize, handleSetLoading, handleRedo, stopRecording}) => {
+
+    const handleDonePress = () => {
+        handleSetLoading(true);
+        stopRecording();
+        // When stopRecording is complete, you might want to set loading to false
+        // and trigger the transition to TranscriptionUI
+    };
+
+    return (
     <View style={styles.recognizeContainer}>
         <TouchableOpacity onPress={handleRedo} style={styles.redoButton}>
             <Text style={styles.redoButtonText}>Redo</Text>
@@ -24,7 +33,7 @@ const RecognizeUI = ({recognize, handleSetLoading, handleRedo}) => (
             <TouchableOpacity
                 style={styles.doneButton}
                 activeOpacity={0.4}
-                onPress={handleSetLoading}
+                onPress={handleDonePress}
             >
                 <Text style={styles.doneButtonText} >Done</Text>
             </TouchableOpacity>
@@ -43,7 +52,8 @@ const RecognizeUI = ({recognize, handleSetLoading, handleRedo}) => (
             </View>
         </TouchableOpacity>
     </View>
-);
+    );
+};
 
 const styles = StyleSheet.create({
     recognizeContainer: {

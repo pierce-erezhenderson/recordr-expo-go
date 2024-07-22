@@ -1,10 +1,10 @@
 import express from 'express';
 import { 
-    createRecordrNote 
+    generateRecordrNote 
 } from '../controllers/recordrController.mjs';
 
 const router = express.Router();
 
-router.post('/createRecordrNote', createRecordrNote);
+router.post('/generateRecordrNote', generateRecordrNote);
 
 export default router;

@@ -7,9 +7,14 @@ import { API_URL } from '../services/apiService';
 const useSpeechRecognition = () => {
     const { setRecognize } = useRecognize();
     const [recording, setRecording] = useState(null);
-    const [transcription, setTranscription] = useState({});
+    const [transcription, setTranscription] = useState({
+        client: 'Mom',
+        date: '2024-07-21',
+        hours: '2',
+        details: 'worked in garden',
+    });
     const [isProcessing, setIsProcessing] = useState(false);
-    const [serverResponse, setServerResponse] = useState(false);
+    const [serverResponse, setServerResponse] = useState(true);
 
     const startRecording = async () => {
         console.log('Starting recording...');
@@ -72,9 +77,10 @@ const useSpeechRecognition = () => {
         }
         
         const data = await response.json();
-        console.log('Transcription:', JSON.parse(data.response));
         setServerResponse(true);
-        setTranscription(JSON.parse(data.response) || '');
+        const transcriptionData = typeof data.response === 'string' ? JSON.parse(data.response) : data.response;
+        console.log('Transcription:', transcriptionData);
+        setTranscription(transcriptionData || {});
         
       } catch (error) {
         console.error('Error processing audio:', error);

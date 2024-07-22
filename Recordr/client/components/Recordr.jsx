@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import React, { useEffect } from 'react';
 import { useRecognize } from "../utils/RecognizeContext.jsx";
 import { useSuccess } from "../utils/SuccessContext.jsx";
 import { useLoading } from "../utils/LoadingContext.jsx";
@@ -25,45 +26,32 @@ const Recordr = () => {
         cancelRecording
     } = useSpeechRecognition()
 
-    const updateField = (field) => (text) => {
-        setTranscription(prevState => ({
-            ...prevState,
-            [field]: text
-        }));
-    };
-
     const submitAllFields = (transcription) => {
         useSubmitRecordr(transcription);
     };
 
-    const handleSetLoading = ({redo}) => {
-        setLoading(true);
-        console.log('Loading...');
-
-        setTimeout(() => {
-            setLoading(false);
-            if (!recognize) {
-                setRecognize(true);
-                startRecording();
-            } else if (redo) {
-                setRecognize(false);
-                cancelRecording();
-                setTranscription({});
-            } else {
-                setRecognize(false);
-                stopRecording();
-            }   
-        }, 2000);
+    const handleSetLoading = (isLoading) => {
+        setLoading(isLoading);
     };
 
     const handleRedo = () => {
-        const redo = true;
-        handleSetLoading(redo);
+        handleSetLoading(true);
+        // Add any redo logic here
+        setTimeout(() => {
+            handleSetLoading(false);
+            setRecognize(true); // Transition to RecognizeUI
+        }, 2000); // 2 second artificial loading
     };
+
+    useEffect(() => {
+        if (serverResponse) {
+            handleSetLoading(false);
+        }
+    }, [serverResponse]);
 
     const getBackgroundColor = () => {
         if (serverResponse) {  
-            return '#b6c299';
+            return '#c4d1a4';
         }
         if (recognize) {
             return '#f2d8c7';
@@ -83,16 +71,22 @@ const Recordr = () => {
             case success: return <SuccessAnimation />;
             case serverResponse: return <TranscriptionUI
                 transcription={transcription}
-                updateField={updateField}
                 submitAllFields={submitAllFields}
+                handleRedo={handleRedo}
+                setTranscription={setTranscription}
             />;
             case recognize: return <RecognizeUI
                 recognize={recognize} 
                 handleSetLoading={handleSetLoading}
                 handleRedo={handleRedo}
+                stopRecording={stopRecording}
             />;
-            default: return <StarterUI handleSetLoading={handleSetLoading} />;
-        }
+            default: return <StarterUI 
+                handleSetLoading={handleSetLoading}
+                startRecording={startRecording}
+                setRecognize={setRecognize}
+            />;
+        };
     };
 
     return (

@@ -5,7 +5,7 @@ import { parseMessageFromCompletion } from '../utils/jsonParser.mjs';
 
 let audioChunks = [];
 
-export const createRecordrNote = async (req, res) => {
+export const generateRecordrNote = async (req, res) => {
     try {
         const { audio, isLastChunk } = req.body;
         
@@ -17,20 +17,24 @@ export const createRecordrNote = async (req, res) => {
         
         // Generating transcription
         const fullAudio = Buffer.concat(audioChunks); // Prepares for Google STT
+        console.log('Full audio length:', fullAudio.length);
         const transcription = await speechToText(fullAudio); // Google Cloud api - Speech to Text
+        console.log('Transcription:', transcription);
         const response = await openAICompletion(transcription); // OpenAI GPT api - Text to JSON object
-        
+        console.log ('Response:', response);
+
+
         // Fetching invoice ID (if available)
-        const parsedTranscription = JSON.parse(transcription);
-        const clientName = String(parsedTranscription.client);
-        const invoiceId = await getSingleInvoice( { client: clientName});
-        if (!invoiceId) {
-            return res.status(404).send({ message: 'Invoice not found'});
-        }
+        // const parsedResponse = JSON.parse(response);
+        // const clientName = String(parsedResponse.client);
+        // const invoiceId = await getSingleInvoice( { client: clientName});
+        // if (!invoiceId) {
+        //     return res.status(404).send({ message: 'Invoice not found'});
+        // }
 
         audioChunks = [];
             
-        res.json({ response, invoiceId });
+        res.json({ response }); // add invoiceId one day
 
     } catch (error) {
         console.error('Error recording:', error);
@@ -41,7 +45,7 @@ export const createRecordrNote = async (req, res) => {
 
 // ------- Functions for Items -------
 
-export const addNewInvoiceNote = async (req, res) => {
+export const addRecordrNote = async (req, res) => {
     // Get all items from an invoice
     try {
         let invoice = await Invoice.findById(req.params.id);
