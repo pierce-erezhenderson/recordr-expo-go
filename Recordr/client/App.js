@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -9,19 +9,42 @@ import * as SplashScreen from 'expo-splash-screen';
 // Screens
 import RecognizeScreen from './screens/RecognizeScreen.jsx';
 
+// UIs
+import SignInScreen from './components/UI/SignInUI';
+import SignUpScreen from './components/UI/SignUpUI';
+
 // Contexts
 import { RecognizeProvider } from "./utils/RecognizeContext.jsx";
 import { SuccessProvider } from "./utils/SuccessContext.jsx";
 import { LoadingProvider } from "./utils/LoadingContext.jsx";
-
+import { AuthProvider, useAuth } from "./utils/AuthContext";
 
 const Stack = createStackNavigator();
 console.log('App started. API_URL:', API_URL);
 SplashScreen.preventAutoHideAsync();
 
+const AppNavigator = () => {
+  const { user } = useAuth();
 
-export default function App() {        // get rid of this it's not doing much!
-  
+  return (
+    <Stack.Navigator>
+      {!user ? (
+        <Stack.Screen 
+          name="Recognize" 
+          component={RecognizeScreen} 
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <>
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+};
+
+export default function App() {
   const [loaded, error] = useFonts({
     'SuisseScreen-Regular': require('./assets/SuisseScreen-Regular.ttf'),
     'SuisseScreen-Bold': require('./assets/SuisseScreen-Bold.ttf'),
@@ -38,22 +61,17 @@ export default function App() {        // get rid of this it's not doing much!
     return null;
   }
 
-    return (
+  return (
+    <AuthProvider>
       <RecognizeProvider>
         <SuccessProvider>
           <LoadingProvider>
-              <NavigationContainer>
-                  <Stack.Navigator initialRouteName="Recognize">
-                      <Stack.Screen 
-                          name="Recognize" 
-                          component={RecognizeScreen} 
-                          options={{ headerShown: false}}
-                      />
-                  </Stack.Navigator>
-              </NavigationContainer>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
           </LoadingProvider>
         </SuccessProvider>
       </RecognizeProvider>
+    </AuthProvider>
   );
 }
-

@@ -1,4 +1,4 @@
-    import React, { useState, useRef, useEffect, useCallback } from 'react';
+    import React, { useState, memo, useEffect, useCallback, useRef } from 'react';
     import { 
         Text, 
         TextInput, 
@@ -9,19 +9,59 @@
     } from 'react-native';
     import { Card } from 'react-native-paper';
     import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-    import PencilIcon from './PencilIcon';
+    import PencilIcon from '../icons/PencilIcon';
 
-    const TranscriptionUI = ({setTranscription, transcription, submitAllFields, handleRedo }) => {
-        console.log('TranscriptionUI received:', transcription);
-        
+
+    // ----- Memoized InputWithIcon component -----
+
+    const InputWithIcon = memo(({ 
+        field, 
+        value, 
+        onChangeText, 
+        style, 
+        multiline = false, 
+        onFocus, 
+        onEndEditing
+    }) => {
+        console.log(`Rendering InputWithIcon for field: ${field}`); // Debug log
+        return (
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={[styles.input, style]}
+                    value={String(value)}
+                    onChangeText={onChangeText}
+                    onFocus={() => onFocus(field)}
+                    onEndEditing={() => onEndEditing(field)}
+                    multiline={multiline}
+                />
+                {field === 'hours' && <Text style={{marginRight: 5}}>hrs</Text>}
+                <PencilIcon color="#47522b" size={20} style={styles.pencilIcon} />
+            </View>
+        );
+    });
+
+    
+    // ----- TranscriptionUI component -----
+
+    const TranscriptionUI = memo(({ setTranscription, transcription, submitAllFields, handleRedo, submitTranscription }) => {
+        console.log('TranscriptionUI rendered'); // Debug log
+    
         const [tempTranscription, setTempTranscription] = useState(transcription);
         const [editingField, setEditingField] = useState(null);
-
+        const renderCount = useRef(0);
+    
         useEffect(() => {
+            console.log('transcription changed:', transcription); // Debug log
             setTempTranscription(transcription);
         }, [transcription]);
     
-        const updateField = useCallback((field) => (text) => {
+        useEffect(() => {
+            renderCount.current += 1;
+            console.log('Render count:', renderCount.current); // Debug log
+        });
+        
+        const updateField = useCallback((field, text) => {
+            console.log(`Updating field: ${field}, value: ${text}`); // Debug log
             setTempTranscription(prevState => ({
                 ...prevState,
                 [field]: text
@@ -29,33 +69,22 @@
         }, []);
     
         const handleFocus = useCallback((field) => {
+            console.log(`Focus on field: ${field}`); // Debug log
             setEditingField(field);
         }, []);
-    
-        const handleEndEditing = useCallback((field) => () => {
+        
+        const handleEndEditing = useCallback((field) => {
+            console.log(`End editing field: ${field}`); // Debug log
             if (editingField === field) {
                 setEditingField(null);
                 setTranscription(tempTranscription);
             }
         }, [editingField, tempTranscription, setTranscription]);
-        
-        const InputWithIcon = useCallback(({ field, value, onChangeText, style, multiline = false }) => {
-            return (
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={[styles.input, style]}
-                        value={editingField === field ? tempTranscription[field] || '' : value !== undefined ? value.toString() : ''}
-                        onChangeText={onChangeText}
-                        onFocus={() => handleFocus(field)}
-                        onEndEditing={handleEndEditing}
-                        multiline={multiline}
-                    />
-                    {field === 'hours' && <Text style={{marginRight: 5}}>hrs</Text>}
-                    <PencilIcon color="#47522b" size={20} style={styles.pencilIcon} />
-                </View>
-            );
-        }, [editingField, tempTranscription, handleFocus, handleEndEditing]);
-
+    
+        const handleSave = useCallback(() => {
+            setTranscription(tempTranscription);
+            submitAllFields(tempTranscription);
+        }, [tempTranscription, setTranscription, submitAllFields]);
         
         return (
             <KeyboardAwareScrollView
@@ -72,38 +101,41 @@
                     <View style={styles.innerItems}>
                         <InputWithIcon
                             field="date"
-                            value={transcription.date || ''}
-                            onChangeText={updateField('date')}
+                            value={tempTranscription.date || ''}
+                            onChangeText={(text) => updateField('date', text)}
                             style={styles.date}
+                            onFocus={handleFocus}
+                            onEndEditing={handleEndEditing}
                         />
                         <InputWithIcon
                             field="hours"
-                            value={transcription.hours || ''}
-                            onChangeText={updateField('hours')}
+                            value={tempTranscription.hours || ''}
+                            onChangeText={(text) => updateField('hours', text)}
                             style={styles.hours}
+                            onFocus={handleFocus}
+                            onEndEditing={handleEndEditing}
                         />
                         <InputWithIcon
                             field="details"
-                            value={transcription.details || ''}
-                            onChangeText={updateField('details')}
+                            value={tempTranscription.details || ''}
+                            onChangeText={(text) => updateField('details', text)}
                             style={styles.details}
                             multiline={true}
+                            onFocus={handleFocus}
+                            onEndEditing={handleEndEditing}
                         />
                     </View>
                 </Card>
                 <Text style={styles.subheader}>Review your new invoice note for accuracy, then press save</Text>
                 <TouchableOpacity 
                     style={styles.saveButton} 
-                    onPress={() => {
-                        setTranscription(tempTranscription);
-                        submitAllFields(tempTranscription);
-                    }}
+                    onPress={handleSave}
                 >
                     <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
             </KeyboardAwareScrollView>
         );
-    };
+    });
 
     const styles = StyleSheet.create({
         scrollViewContent: {

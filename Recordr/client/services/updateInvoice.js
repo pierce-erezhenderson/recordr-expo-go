@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useSuccess } from '../utils/SuccessContext';
+import { useLoading } from '../utils/LoadingContext';
 
-
-const useSubmitRecordr = async ({ transcription }) => {
+const useSubmitRecordr = () => {
     const { setSuccess } = useSuccess();
     const { setLoading } = useLoading();
+    const [error, setError] = useState(null);
 
     const submitTranscription = async (transcription) => {
         setLoading(true);
+        setError(null);
         try {
             const response = await fetch(`${API_URL}/api/createNewNote`, {
                 method: 'POST',
@@ -22,16 +24,17 @@ const useSubmitRecordr = async ({ transcription }) => {
             }
 
             const data = await response.json();
-            setLoading(false);
             setSuccess(true);
             return data;
-
         } catch (error) {
             console.error('Error saving note:', error);
+            setError(error.message);
+        } finally {
             setLoading(false);
         }
-    }
-    return { submitTranscription, loading, error };
+    };
+
+    return { submitTranscription, error };
 };
 
 export default useSubmitRecordr;

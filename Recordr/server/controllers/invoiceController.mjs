@@ -1,73 +1,67 @@
 import Invoice from '../models/invoice.mjs';
 
-
-// ------- Functions for Invoices -------
-
 export const getAllUserInvoices = async (req, res) => {
-    // Get all invoices from user
     try {
-        const invoice = new Invoice.findById(req.params.id);
-        if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
-        }
-        res.send(invoice);
+        const invoices = await Invoice.find({ user: req.user._id }).populate('items');
+        res.json(invoices);
     } catch (error) {
-        res.status(500).send({ message: error.message });
-    };
+        res.status(500).json({ message: error.message });
+    }
 };
 
 export const getSingleInvoice = async (req, res) => {
-    // Get a single invoice
     try {
-        const invoice = new Invoice.findById(req.params.id);
+        const invoice = await Invoice.findById(req.params.id).populate('items');
         if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
+            return res.status(404).json({ message: 'Invoice not found'});
         }
-        res.send(invoice);
+        res.json(invoice);
     } catch (error) {
-        res.status(500).send({ message: error.message });
-    };
+        res.status(500).json({ message: error.message });
+    }
 };
 
+// should create an invoice if particular invoice not found (only in recordr-updated contexts?)
+// if (recordr) then createNewInvoice
+// else return error
+
 export const createNewInvoice = async (req, res) => {
-    // Create a new invoice
     try {
-        const invoice = new Invoice(req.body);
+        const invoice = new Invoice({
+            ...req.body,
+            user: req.user._id
+        });
         await invoice.save();
-        res.status(201).send(invoice);
+        res.status(201).json(invoice);
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
 export const updateInvoice = async (req, res) => {
-    // Update sent and paid statuses for invoice
     try {
-        const invoice = Invoice.findByIdAndUpdate(
+        const invoice = await Invoice.findByIdAndUpdate(
             req.params.id, 
             { $set: req.body }, 
             { new: true }
-        );
+        ).populate('items');
         if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
+            return res.status(404).json({ message: 'Invoice not found'});
         }
-        res.send(invoice);
+        res.json(invoice);
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
 export const deleteInvoice = async (req, res) => {
-    // Delete an invoice
     try {
-        const invoice = new Invoice.findByIdAndDelete(req.params.id);
+        const invoice = await Invoice.findByIdAndDelete(req.params.id);
         if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
+            return res.status(404).json({ message: 'Invoice not found'});
         }
-        res.send({ message: 'Invoice removed'});
+        res.json({ message: 'Invoice removed'});
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
-
-

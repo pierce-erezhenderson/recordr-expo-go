@@ -1,12 +1,10 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import Recordr from "../components/containers/Recordr";
 
-const RecognizeScreen = () => {
-  
-  return (
+const InvoiceScreen = () => {
+    return (
         <View style={styles.container}>
-            <Recordr />
+            <Invoices />
         </ View>
     );
 };
@@ -17,4 +15,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default RecognizeScreen;
+export default InvoiceScreen;

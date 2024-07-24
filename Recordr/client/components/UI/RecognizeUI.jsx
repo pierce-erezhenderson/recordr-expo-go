@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { G, Path, Polygon } from 'react-native-svg';
-import ImageCycler from './ImageCycler';
-import RecordingSignal from './RecordingSignal';
+import ImageCycler from '../bobs/ImageCycler';
+import RecordingSignal from '../bobs/RecordingSignal';
 
 const RecognizeUI = ({recognize, handleSetLoading, handleRedo, stopRecording}) => {
 

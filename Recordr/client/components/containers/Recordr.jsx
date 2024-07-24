@@ -1,16 +1,16 @@
-import { StyleSheet, View } from 'react-native';
-import React, { useEffect } from 'react';
-import { useRecognize } from "../utils/RecognizeContext.jsx";
-import { useSuccess } from "../utils/SuccessContext.jsx";
-import { useLoading } from "../utils/LoadingContext.jsx";
-import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import useSubmitRecordr from '../hooks/useSubmitRecordr';
-import StarterUI from './StarterUI';
-import RecognizeUI from './RecognizeUI';
-import TranscriptionUI from './TranscriptionUI';
-import LoadingAnimation from './LoadingAnimation';
-import SuccessAnimation from './SuccessAnimation';
-import ImageCycler from './ImageCycler.jsx'; 
+import { StyleSheet, View, Text } from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { useRecognize } from "../../utils/RecognizeContext.jsx";
+import { useSuccess } from "../../utils/SuccessContext.jsx";
+import { useLoading } from "../../utils/LoadingContext.jsx";
+import useSpeechRecognition from '../../hooks/useSpeechRecognition.jsx';
+import useSubmitRecordr from '../../hooks/useSubmitRecordr.jsx';
+import StarterUI from '../UI/StarterUI.jsx';
+import RecognizeUI from '../UI/RecognizeUI.jsx';
+import TranscriptionUI from '../UI/TranscriptionUI.jsx';
+import LoadingAnimation from '../bobs/LoadingAnimation.jsx';
+import SuccessAnimation from '../bobs/SuccessAnimation.jsx';
+import ImageCycler from '../bobs/ImageCycler.jsx'; 
 
 
 const Recordr = () => {
@@ -23,25 +23,32 @@ const Recordr = () => {
         transcription, 
         setTranscription, 
         serverResponse,
+        setServerResponse,
         cancelRecording
     } = useSpeechRecognition()
-
-    const submitAllFields = (transcription) => {
-        useSubmitRecordr(transcription);
-    };
+    const { submitTranscription, error: submitError } = useSubmitRecordr();
 
     const handleSetLoading = (isLoading) => {
         setLoading(isLoading);
     };
 
-    const handleRedo = () => {
+    const submitAllFields = useCallback(async (transcription) => {
         handleSetLoading(true);
+        await submitTranscription(transcription);
+        handleSetLoading(false);
+    }, [handleSetLoading, submitTranscription]);
+
+    const handleRedo = useCallback(() => {
+        handleSetLoading(true);
+        setTranscription('');
+        setRecognize(false);
+        setServerResponse(false);
         // Add any redo logic here
         setTimeout(() => {
             handleSetLoading(false);
-            setRecognize(true); // Transition to RecognizeUI
         }, 2000); // 2 second artificial loading
-    };
+    }, [handleSetLoading, setRecognize]);
+
 
     useEffect(() => {
         if (serverResponse) {
@@ -74,6 +81,7 @@ const Recordr = () => {
                 submitAllFields={submitAllFields}
                 handleRedo={handleRedo}
                 setTranscription={setTranscription}
+                submitTranscription={submitTranscription}
             />;
             case recognize: return <RecognizeUI
                 recognize={recognize} 
@@ -82,7 +90,6 @@ const Recordr = () => {
                 stopRecording={stopRecording}
             />;
             default: return <StarterUI 
-                handleSetLoading={handleSetLoading}
                 startRecording={startRecording}
                 setRecognize={setRecognize}
             />;
@@ -90,11 +97,9 @@ const Recordr = () => {
     };
 
     return (
-        <View style={[
-            styles.recordrContainer, 
-            { backgroundColor: getBackgroundColor() }
-        ]}>
+        <View style={[ styles.recordrContainer, { backgroundColor: getBackgroundColor() } ]}>
             {getRecordrUI()}
+            {submitError && <Text style={styles.errorText}>{submitError}</Text>}
         </View>
     ); 
 };

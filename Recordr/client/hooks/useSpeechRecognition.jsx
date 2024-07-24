@@ -8,13 +8,13 @@ const useSpeechRecognition = () => {
     const { setRecognize } = useRecognize();
     const [recording, setRecording] = useState(null);
     const [transcription, setTranscription] = useState({
-        client: 'Mom',
-        date: '2024-07-21',
-        hours: '2',
-        details: 'worked in garden',
+        // client: 'Mom',
+        // date: '2024-07-21',
+        // hours: '2',
+        // details: 'worked in garden',
     });
     const [isProcessing, setIsProcessing] = useState(false);
-    const [serverResponse, setServerResponse] = useState(true);
+    const [serverResponse, setServerResponse] = useState(false);
 
     const startRecording = async () => {
         console.log('Starting recording...');
@@ -97,6 +97,7 @@ const useSpeechRecognition = () => {
         setTranscription,
         transcription,
         serverResponse,
+        setServerResponse,
         isProcessing,
         cancelRecording
     };

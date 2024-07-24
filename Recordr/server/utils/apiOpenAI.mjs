@@ -26,7 +26,7 @@ export async function openAICompletion(transcription) {
                         client: ""
 
                     The time now is ${currentDate}. Unless it is obvious or noted by the user that the invoice note is documenting before 2024, please default to 2024. If "yesterday" is mentioned, assume it is the day before the current date.
-                    Details should be a brief description of the task, please do not include articles (e.g. "the", "a", "an") or first-person pronouns (e.g. "I", "me").
+                    Details should be a brief description of the task, please do not include articles (e.g. "the", "a", "an") or first-person pronouns (e.g. "I", "me"). You should always use commas to separate details. If a location is mentioned, always mention it first in the details.
                     
                     Ensure the JSON is correctly structured and includes all necessary information without any additional characters or variations.`
                 },

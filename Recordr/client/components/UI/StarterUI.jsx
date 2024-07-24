@@ -1,18 +1,19 @@
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { G, Path, Polygon } from 'react-native-svg';
-import ImageCycler from './ImageCycler';
+import ImageCycler from '../bobs/ImageCycler';
 import { useEffect } from 'react';
 
-const StarterUI = ({ handleSetLoading, startRecording, setRecognize }) => {
+const StarterUI = ({ startRecording, setRecognize }) => {
 
     const handleRecordPress = () => {
-        handleSetLoading(true);
+        // handleSetLoading(true);
         startRecording();
+        setRecognize(true);
 
-        setTimeout(() => {
-            handleSetLoading(false);
-            setRecognize(true); // Transition to RecognizeUI
-        }, 3000);
+        // setTimeout(() => {
+        //     handleSetLoading(false);
+        //     Transition to RecognizeUI
+        // }, 3000);
     };
 
     return (

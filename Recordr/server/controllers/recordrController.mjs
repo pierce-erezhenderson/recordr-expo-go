@@ -1,7 +1,7 @@
 import { speechToText } from '../utils/apiGoogleSTT.mjs';
 import { openAICompletion } from '../utils/apiOpenAI.mjs';
-import { createNewInvoice, getSingleInvoice } from './invoiceController.mjs';
-import { parseMessageFromCompletion } from '../utils/jsonParser.mjs';
+import Invoice from '../models/invoice.mjs';
+import Record from '../models/record.mjs';
 
 let audioChunks = [];
 
@@ -16,25 +16,16 @@ export const generateRecordrNote = async (req, res) => {
         audioChunks.push(Buffer.from(audio, 'base64'));
         
         // Generating transcription
-        const fullAudio = Buffer.concat(audioChunks); // Prepares for Google STT
+        const fullAudio = Buffer.concat(audioChunks);
         console.log('Full audio length:', fullAudio.length);
-        const transcription = await speechToText(fullAudio); // Google Cloud api - Speech to Text
+        const transcription = await speechToText(fullAudio);
         console.log('Transcription:', transcription);
-        const response = await openAICompletion(transcription); // OpenAI GPT api - Text to JSON object
+        const response = await openAICompletion(transcription);
         console.log ('Response:', response);
-
-
-        // Fetching invoice ID (if available)
-        // const parsedResponse = JSON.parse(response);
-        // const clientName = String(parsedResponse.client);
-        // const invoiceId = await getSingleInvoice( { client: clientName});
-        // if (!invoiceId) {
-        //     return res.status(404).send({ message: 'Invoice not found'});
-        // }
 
         audioChunks = [];
             
-        res.json({ response }); // add invoiceId one day
+        res.json({ response });
 
     } catch (error) {
         console.error('Error recording:', error);
@@ -42,84 +33,83 @@ export const generateRecordrNote = async (req, res) => {
     }
 };
 
-
-// ------- Functions for Items -------
-
 export const addRecordrNote = async (req, res) => {
-    // Get all items from an invoice
     try {
-        let invoice = await Invoice.findById(req.params.id);
+        let invoice = await Invoice.findById(req.params.invoiceId);
         if (!invoice) {
-            invoice = await createNewInvoice(req.body);
-            if (!invoice) {
-                return res.status(400).send({ message: 'Failed to create a new invoice' });
-            }
-        } else {
-            invoice.items.push(req.body);
-            await invoice.save();
+            return res.status(404).json({ message: 'Invoice not found' });
         }
-        res.status(201).send(invoice);
+
+        const newRecord = new Record({
+            invoice: invoice._id,
+            ...req.body
+        });
+
+        await newRecord.save();
+
+        invoice.items.push(newRecord._id);
+        await invoice.save();
+
+        res.status(201).json(newRecord);
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
-
-
-// boilerplate; not configured...
 export const getAllInvoiceNotes = async (req, res) => {
-    // Get all items from an invoice
     try {
-        const invoice = await Invoice.findById(req.params.id);
+        const invoice = await Invoice.findById(req.params.invoiceId).populate('items');
         if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
+            return res.status(404).json({ message: 'Invoice not found'});
         }
-        res.send(invoice.items);
+        res.json(invoice.items);
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
 export const getSingleInvoiceNote = async (req, res) => {
-    // Get a single item from an invoice
     try {
-        const invoice = await Invoice.findById(req.params.id);
-        if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
+        const record = await Record.findById(req.params.recordId);
+        if (!record) {
+            return res.status(404).json({ message: 'Record not found'});
         }
-        res.send(invoice.items.id(req.params.id));
+        res.json(record);
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
 export const updateInvoiceItem = async (req, res) => {
-    // Update an item from an invoice
     try {
-        const invoice = await Invoice.findById(req.params.id);
-        if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
+        const record = await Record.findByIdAndUpdate(
+            req.params.recordId,
+            { $set: req.body },
+            { new: true }
+        );
+        if (!record) {
+            return res.status(404).json({ message: 'Record not found'});
         }
-        const item = invoice.items.id(req.params.id);
-        item.set(req.body);
-        await invoice.save();
-        res.send(item);
+        res.json(record);
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
 export const deleteInvoiceNote = async (req, res) => {
-    // Delete an item from an invoice
     try {
-        const invoice = await Invoice.findById(req.params.id);
-        if (!invoice) {
-            return res.status(404).send({ message: 'Invoice not found'});
+        const record = await Record.findByIdAndDelete(req.params.recordId);
+        if (!record) {
+            return res.status(404).json({ message: 'Record not found'});
         }
-        invoice.items.id(req.params.id).remove();
-        await invoice.save();
-        res.send({ message: 'Item removed'});
+        
+        // Remove the record from the invoice's items array
+        await Invoice.findByIdAndUpdate(record.invoice, {
+            $pull: { items: record._id }
+        });
+
+        res.json({ message: 'Record removed'});
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };

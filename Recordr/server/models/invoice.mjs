@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
-const { Schema, model, ObjectId } = mongoose;
-
+const { Schema, model } = mongoose;
 
 const invoiceSchema = new Schema({
-    _id: ObjectId,
     invoiceNumber: {
         type: String,
         required: true,
@@ -29,6 +27,7 @@ const invoiceSchema = new Schema({
     createdDate: {
         type: Date,
         required: true,
+        default: Date.now,
     },
     sentStatus: {
         type: Boolean,
@@ -40,18 +39,11 @@ const invoiceSchema = new Schema({
         required: true,
         default: false,
     },
-    items: {
+    items: [{
         type: Schema.Types.ObjectId,
         ref: 'Record',
-    }
+    }]
 }, { timestamps: true });
-
-
-invoiceSchema.pre('save', function (next) {
-    // Middleware to update 
-    this.updatedAt = Date.now();
-    next();
-});
 
 const Invoice = model('Invoice', invoiceSchema);
 export default Invoice;

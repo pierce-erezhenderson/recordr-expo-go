@@ -5,15 +5,15 @@ import { Image, View, StyleSheet } from 'react-native';
 const ImageCycler = ({ recognize }) => {
     
     const starterImages = [
-        require('../assets/StarterImages1.png'),
-        require('../assets/StarterImages2.png'),
-        require('../assets/StarterImages3.png'),
+        require('../../assets/StarterImages1.png'),
+        require('../../assets/StarterImages2.png'),
+        require('../../assets/StarterImages3.png'),
     ];
 
     const recordImages = [
-        require('../assets/RecognizeImages1.png'),
-        require('../assets/RecognizeImages2.png'),
-        require('../assets/RecognizeImages3.png'),
+        require('../../assets/RecognizeImages1.png'),
+        require('../../assets/RecognizeImages2.png'),
+        require('../../assets/RecognizeImages3.png'),
     ]
 
     const [currentIndex, setCurrentIndex] = useState(0);
