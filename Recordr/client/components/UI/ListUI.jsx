@@ -3,16 +3,18 @@ import { SectionList, StyleSheet, Text, View, ActivityIndicator } from 'react-na
 import useInvoices from '../hooks/useInvoices';
 
 
-const ListUI = ({ 
-  loading, 
-  onRefresh,
-  updatedInvoice, 
-  getAllInvoices,
-  getClientInvoices,
-  getInvoice,
-  invoices,
-  clients
-}) => {
+const ListUI = () => { 
+
+  const { 
+    loading, 
+    onRefresh,
+    updatedInvoice, 
+    getAllInvoices,
+    getClientInvoices,
+    getInvoice,
+    invoices,
+    clients
+  } = useInvoices();
 
   const { 
     RenderLists,
@@ -48,9 +50,11 @@ const ListUI = ({
       
       case getAllInvoices:
         return (
-          <View>
-
-          </View>
+          <Flatlist 
+            data={invoiceList} // ADD API CALL
+            renderItem={({ item }) => <InvoiceList invoices={item.invoices} clients={item.clients} />}
+            keyExtractor={item => item.id}
+          />
         );
 
       
@@ -78,22 +82,18 @@ const ListUI = ({
   }
 
 
-  return (
-
-  );
-
   // add this
-  return (
-    <View style={styles.screen}>
-      <InvoiceList 
-        data={invoices}
-        loading={loading}
-        onRefresh={loadInvoices}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-      />
-    </View>
-  );
+  // return (
+  //   <View style={styles.screen}>
+  //     <InvoiceList 
+  //       data={invoices}
+  //       loading={loading}
+  //       onRefresh={loadInvoices}
+  //       renderItem={renderItem}
+  //       renderSectionHeader={renderSectionHeader}
+  //     />
+  //   </View>
+  // );
 }
 
 const styles = StyleSheet.create({

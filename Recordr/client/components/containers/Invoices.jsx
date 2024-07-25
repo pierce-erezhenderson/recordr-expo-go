@@ -30,18 +30,20 @@ const Invoices = () => {
 
 
       // ----- UI for Recordr Output -----
+      // ADD UPDATED STATE TO UPDATE ITEM
 
       case updatedInvoice: 
         return (
           <View style={styles.updatedInvoice}>
             <RecordButton />
+            <GoToInvoicesButton />
             <Text style={styles.smallUpperSubheading}>{invoiceNumber}</Text>
             <Text style={styles.largeHeader}>{client}</Text>
-            <GoToInvoicesButton />
-            <ListUI 
-              updatedInvoice={updatedInvoice}
-              invoices={invoices}
-            />
+            <UpdatedInvoiceList updatedInvoice={updatedInvoice} />
+            <RenderInvoiceTotal />
+            <TouchableOpacity style={styles.goToClient} onPress={getClientInvoices(clients)}>
+              <Text style={goToClientText}>Go to {clients}'s invoices</Text>
+            </TouchableOpacity>
           </View>
         );
 
@@ -54,10 +56,10 @@ const Invoices = () => {
             <RecordButton />
             <Text style={styles.largeHeader}>Invoices</Text>
             <GoToInvoicesButton />
-            <ListUI 
-              getAllInvoices={getAllInvoices}
-              clients={clients}
-              invoices={invoices}
+            <Flatlist 
+              data={invoiceList} // ADD API CALL
+              renderItem={({ item }) => <InvoiceList invoices={item.invoices} clients={item.clients} />}
+              keyExtractor={item => item.id}
             />
           </View>
         );
@@ -72,11 +74,11 @@ const Invoices = () => {
               <ClientIcon />
               <Text style={styles.Header}>{client}</Text>
             </View>
-            <ListUI
+            {/* <ListUI
               getClientInvoices={getClientInvoices}
               clients={clients}
               invoices={invoices}
-            />
+            /> */}
           </View>
         );
       
@@ -93,11 +95,11 @@ const Invoices = () => {
                 <DocumentIcon />
                 <Text style={styles.Header}>{invoiceNumber}</Text>
               </View>
-            <ListUI 
+            {/* <ListUI 
               getInvoice={getInvoice}
               clients={clients}
               invoices={invoices}
-            />
+            /> */}
           </View>
         );
       default: return (
