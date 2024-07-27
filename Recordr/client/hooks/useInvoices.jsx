@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { fetchInvoices } from '../services/invoiceService'; // add this
 import { Text } from 'react-native';
-import useLoading from '../hooks/useLoading';
+import useLoading from '../utils/LoadingContext'
 import TagsCollection from '../components/bobs/TagsCollection';
-import { fetchClientInvoices } from '../services/fetchInvoices';
+import { fetchClientInvoices } from '../services/invoicesAPI';
 import { Card, Title } from 'react-native-paper';
 import { PencilIcon } from 'lucide-react';
+import { API_URL } from './apiServer'
+import { setLoading } from '../utils/LoadingContext'
+import { transcription } from '../hooks/useRecordr'
+import { invoices, clients } from '../hooks/useRecordr'
 
 
 const useInvoices = () => {
     const [invoices, setInvoices] = useState([]);
-    const [clients, getClients] = useState();
+    const [clients, setClients] = useState();
     const { loading, setLoading } = useLoading();
 
     // States to render UIs
@@ -20,138 +24,180 @@ const useInvoices = () => {
     const [getClientInvoices, setGetClientInvoices] = useState();
     const [getInvoice, setGetInvoice] = useState();
 
-    const loadInvoices = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchInvoices();
-        setInvoices(data);
-      } catch (error) {
-        console.error('Failed to fetch invoices:', error);
-        // Handle error (e.g., show an alert)
-      } finally {
-        setLoading(false);
-      }
-    };
+
     
     useEffect(() => {
       loadInvoices();
     }, []);
 
-    handleEditInvoice = () => {
-        // API call to fetch invoice
+
+
+    // ----- Get -----
+
+    const fetchUpdatedInvoice = async () => {
+    try {
+        const response = await fetch(`${ API_URL }/invoices/:id`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            // should I auth these calls?
+        },
+        body: JSON.stringify({
+            items: invoices   // check this
+        })
+        });
+
+        if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching updated invoice:', error);
+        throw error;
+    }
     };
 
-    handleViewAll = () => {
-        // API call to fetch client invoices
+    const fetchAllInvoices = async (invoices) => {
+    try {
+        const response = await fetch(`${ API_URL }/invoices`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            // should I auth these calls?
+        },
+        body: JSON.stringify({
+            user: invoices
+        })
+        });
+
+        if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching user invoices:', error);
+        throw error;
+    }
+    };
+
+    const fetchClientInvoices = async (client) => {
+    try {
+        const response = await fetch(`${ API_URL }/invoices`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            // should I auth these calls?
+        },
+        body: ({
+            clientName: client
+        })
+        });
+
+        if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching specific client invoices:', error);
+        throw error;
+    }
     };
 
 
-    // ----- General render components -----
+    // ----- Update -----
 
-    const RenderTotalFooter = () => {
-        <View style={styles.RenderTotalFooter}>
-            <MoneyBagIcon style={styles.moneyBagIcon}/>
-            <Text styles={styles.TotalText}>Total</Text>
-            <Text styles={styles.currency}>{invoiceCurrency}</Text>
-            {/* line break */}
-            <Text styles={styles.hoursTotal}>{hoursTotal}</Text>
-        </View>
+    const createNewRecordr = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+        const response = await fetch(`${ API_URL }/invoices`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ transcription })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save note');
+        }
+
+        const data = await response.json();
+
+        const checkInvoiceExists = (data) => {
+            if(!InvoiceNumber) {
+                try {
+                    const newInvoiceNumber = await createNewInvoice();
+                    const { invoiceNumber } = newInvoiceNumber
+                    return { invoiceNumber };
+                } catch (error) {
+                    console.error('Error creating new invoice for Recordr Note', error);
+                    setError(error.message);
+                }
+            }
+        }
+
+        setSuccess(true);
+        return data;
+    } catch (error) {
+        console.error('Error saving note:', error);
+        setError(error.message);
+    } finally {
+        setLoading(false);
     }
-
-
-    // ----- Functions for Invoice List UI -----
-
-    const RenderInvoice = () => {
-        <View>
-            <FlatList
-                style={styles.InvoiceListItems}
-                renderItem={({ item }) => (
-                    <View style={styles.InvoiceListItemsRow}>
-                        <CalendarIcon date={date} />
-                        <Text style={styles.InvoiceListItemsDetails}>{invoices.details}</Text> 
-                        <Text style={styles.InvoiceListItemsDetails}>{invoices.hours}</Text> 
-                        <TouchableOpacity style={style.editInvoicePencil} onPress={handleEditInvoice}>
-                            <PencilIcon />
-                        </TouchableOpacity>
-                    </View>
-                )}
-            />
-            <RenderTotalFooter />
-        </View>
-    }
-
-
-    // ----- Functions for main Invoice screen UI -----
-
-    const RenderAllInvoicesTitle = ({ invoices, clients }) => (
-        <View>
-            <ClientIcon style={styles.clientIcon}/>
-            <Text style={styles.invoiceListTitle}>{section.title}</Text>
-            <EllipseIcon style={styles.ellipseIcon}/>
-        </View>
-    );
-
-    const RenderAllInvoicesItems = ({ invoices, clients }) => {
-        <FlatList
-            style={styles.InvoiceListItems}
-            renderItem={({ item }) => (
-                <View style={styles.InvoiceListItemsRow}>
-                    <Text style={styles.InvoiceListItemsNumber}>{invoiceNumber}</Text>
-                    <Text style={styles.InvoiceListItemsClient}>{invoiceEntries} entries totalling {hoursTotal} hrs</Text> 
-                    {/* make these variables */}
-                    <TagsCollection style={styles.TagsCollection} />
-                    <TouchableOpacity style={style.editInvoicePencil} onPress={handleEditInvoice}>
-                        <PencilIcon />
-                    </TouchableOpacity>
-                </View>
-            )}
-            // edit/add params for FlatList
-        />
     };
 
-    const RenderAllInvoicesFooter = ({ invoices }) => {
-        <View style={styles.renderInvoiceListFooter}>
-            <Text style={styles.InvoiceListTotal}>{TotalCurrency}</Text>
-            <ViewAllButton style={styles.ViewAllButton} onPress={fetchClientInvoices} />
-        </View>
+    const createNewInvoice = async (invoiceData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+        const response = await fetch(`${ API_URL }/invoices`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            invoiceNumber: invoiceData.invoiceNumber,
+            clientName: invoiceData.clientName,
+            totalAmount: invoiceData.totalAmount,
+            rate: invoiceData.rate,
+            items: invoiceData.items,
+            })
+        });
+
+        if (!response.ok) {
+        throw new Error('Failed to save invoice');
+        }
+
+        const data = await response.json();
+        console.log('Invoice created:', data);
+        setLoading(false);
+        // setSuccess(true); -- later
+        return data;
+    } catch (error) {
+        setError(error.message);
+        setLoading(false);
+        throw error;
     }
-
-    const RenderAllInvoices = ({ invoices, clients }) => {
-        <Card style={styles.renderInvoiceList}>
-            <Card.Content>
-                <RenderInvoiceListTitle /> 
-                {/* // Maybe change the above into Title from paper */}
-                <RenderInvoiceListItems />
-                <RenderInvoiceListFooter />
-            </Card.Content>
-        </Card>
-    }
+    };
 
 
-    // ----- Functions for specific client invoices UI ----- 
-    
-    const RenderClientInvoicesList = ({ invoices, clients }) => {
-        <Card style={styles.renderClientInvoiceList}>
-            <Card.Content>
-                <Text style={invoiceNumberHeader}>{InvoiceNumber}</Text>
-                <TagsCollection style={styles.TagsCollection} />
-                <TouchableOpacity style={styles.editClientInvoiceButton} onPress={getInvoice(client)}>
-                    <PencilIcon />
-                    <Text styles={styles.editClientInvoiceButtonText}>Edit</Text>
-                </TouchableOpacity>
-                <Text styles={styles.seeEntriesTest}>See all {itemEntries} entries</Text>
-                <RenderInvoiceListItems />
-                <RenderInvoiceListFooter />
-            </Card.Content>
-        </Card>
-    }
-
-    
-    return (
+    return {
         
         // Hooks for invoices
         loadInvoices,
         invoices,
+        setInvoices,
+        clients,
+        setClients,
         loading,
         getAllInvoices, 
         setGetAllInvoices,
@@ -162,12 +208,14 @@ const useInvoices = () => {
         getInvoice, 
         setGetInvoice,
 
-        // UI for rendering invoice lists
-        InvoiceList,
-        RenderInvoice,
-        ClientInvoiceList,
-        RenderInvoiceListFooter,
-    );
+        // Functions for rendering invoice lists
+        handleEditInvoice,
+        handleViewAll,
+        handleBrowseInvoices,
+
+        RenderTotalFooter,
+        RenderClientInvoicesList
+    }
 };
   
 const styles = StyleSheet.create({
@@ -189,33 +237,3 @@ const styles = StyleSheet.create({
 });
 
 export default useInvoices;
-
-
-
-    // const renderItem = ({ item }) => (
-    //   <View style={styles.row}>
-    //     <Text>{item.date}</Text>
-    //     <Text>{item.amount}</Text>
-    //     <Text>{item.description}</Text>
-    //   </View>
-    // );
-
-    // const renderList = ({ invoices, clients }) => (
-    //     <SectionList
-    //         style={styles.container}
-    //         sections={invoices}
-    //         renderItem={({ item }) => (
-    //             <View style={styles.row}>
-    //                 <Text style={styles.date}>{item.date}</Text>
-    //                 <Text style={styles.hours}>{item.hours} hours</Text>
-    //                 <Text style={styles.details}>{item.details}</Text>
-    //             </View>
-    //         )}
-    //         renderSectionHeader={({ section }) => (
-    //             <Text style={styles.header}>{section.title}</Text>
-    //         )}
-    //         keyExtractor={(item) => item.id}
-    //         onRefresh={onRefresh}
-    //         refreshing={loading}
-    //     />
-    // );

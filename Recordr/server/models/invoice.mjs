@@ -42,6 +42,7 @@ const invoiceSchema = new Schema({
     items: [{
         type: Schema.Types.ObjectId,
         ref: 'Record',
+        required: false,
     }]
 }, { timestamps: true });
 

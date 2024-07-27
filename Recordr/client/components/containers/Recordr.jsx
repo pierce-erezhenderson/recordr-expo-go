@@ -3,8 +3,8 @@ import React, { useEffect, useCallback } from 'react';
 import { useRecognize } from "../../utils/RecognizeContext.jsx";
 import { useSuccess } from "../../utils/SuccessContext.jsx";
 import { useLoading } from "../../utils/LoadingContext.jsx";
-import useSpeechRecognition from '../../hooks/useSpeechRecognition.jsx';
-import useSubmitRecordr from '../../hooks/useSubmitRecordr.jsx';
+import useRecordr from '../../hooks/useRecordr.jsx';
+import submitNewNote from '../../services/invoiceAPI';
 import StarterUI from '../UI/StarterUI.jsx';
 import RecognizeUI from '../UI/RecognizeUI.jsx';
 import TranscriptionUI from '../UI/TranscriptionUI.jsx';
@@ -25,16 +25,15 @@ const Recordr = () => {
         serverResponse,
         setServerResponse,
         cancelRecording
-    } = useSpeechRecognition()
-    const { submitTranscription, error: submitError } = useSubmitRecordr();
+    } = useRecordr()
 
     const handleSetLoading = (isLoading) => {
         setLoading(isLoading);
     };
 
-    const submitAllFields = useCallback(async (transcription) => {
+    const updateInvoice = useCallback(async (transcription) => {
         handleSetLoading(true);
-        await submitTranscription(transcription);
+        await submitNewNote(transcription);
         handleSetLoading(false);
     }, [handleSetLoading, submitTranscription]);
 
@@ -49,6 +48,8 @@ const Recordr = () => {
         }, 2000); // 2 second artificial loading
     }, [handleSetLoading, setRecognize]);
 
+
+    // maybe add a clearalldata function later
 
     useEffect(() => {
         if (serverResponse) {
@@ -78,7 +79,7 @@ const Recordr = () => {
             case success: return <SuccessAnimation />;
             case serverResponse: return <TranscriptionUI
                 transcription={transcription}
-                submitAllFields={submitAllFields}
+                updateInvoice={updateInvoice}
                 handleRedo={handleRedo}
                 setTranscription={setTranscription}
                 submitTranscription={submitTranscription}

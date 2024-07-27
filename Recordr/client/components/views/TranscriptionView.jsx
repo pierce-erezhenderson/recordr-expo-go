@@ -43,7 +43,7 @@
     
     // ----- TranscriptionUI component -----
 
-    const TranscriptionUI = memo(({ setTranscription, transcription, submitAllFields, handleRedo, submitTranscription }) => {
+    const TranscriptionUI = memo(({ setTranscription, transcription, updateInvoice, handleRedo, submitTranscription }) => {
         console.log('TranscriptionUI rendered'); // Debug log
     
         const [tempTranscription, setTempTranscription] = useState(transcription);
@@ -59,6 +59,9 @@
             renderCount.current += 1;
             console.log('Render count:', renderCount.current); // Debug log
         });
+
+        // Need to add functionality to bring in new invoices
+        // 
         
         const updateField = useCallback((field, text) => {
             console.log(`Updating field: ${field}, value: ${text}`); // Debug log
@@ -83,8 +86,16 @@
     
         const handleSave = useCallback(() => {
             setTranscription(tempTranscription);
-            submitAllFields(tempTranscription);
-        }, [tempTranscription, setTranscription, submitAllFields]);
+            updateInvoice(tempTranscription);
+
+        }, [tempTranscription, setTranscription, updateInvoice]);
+
+        const handleNavigateToInvoice = useCallback(() => {
+            setUpdateInvoice(true),
+            navigation.navigate('Invoice'),
+            setTempTranscription([]);
+            setTranscription([]);
+        })
         
         return (
             <KeyboardAwareScrollView
@@ -129,7 +140,10 @@
                 <Text style={styles.subheader}>Review your new invoice note for accuracy, then press save</Text>
                 <TouchableOpacity 
                     style={styles.saveButton} 
-                    onPress={handleSave}
+                    onPress={() => {
+                        handleSave(),
+                        handleNavigateToInvoice()
+                    }}
                 >
                     <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>

@@ -1,11 +1,11 @@
 import { TouchableOpacity } from "react-native";
 import react from 'react';
 
-const GoToInvoicesButton = ({ full }) => {
+const GoToInvoicesButton = ({ onPress, title, style }) => {
 
     if (full) {
         return (
-            <TouchableOpacity style={styles.goToInvoicesButton} onPress={{/* Navigate to invoices page*/}}>
+            <TouchableOpacity style={styles.goToInvoicesButton} onPress={onPress}>
             <View style={styles.goToInvoicesButtonContainer}>
                 <Svg width={20} height={20}  viewBox="0 0 16.38 20.47">
                     <G fill="#616263" stroke-width="0">
@@ -21,7 +21,7 @@ const GoToInvoicesButton = ({ full }) => {
         )
     }
     return (
-        <TouchableOpacity style={styles.goToInvoicesButton} onPress={{/* Navigate to invoices page*/}}>
+        <TouchableOpacity style={styles.goToInvoicesButton} onPress={onPress}>
         <View style={styles.goToInvoicesButtonContainer}>
             <Svg width={20} height={20}  viewBox="0 0 16.38 20.47">
                 <G fill="#616263" stroke-width="0">
