@@ -43,8 +43,8 @@
     
     // ----- TranscriptionUI component -----
 
-    const TranscriptionUI = memo(({ setTranscription, transcription, updateInvoice, handleRedo, submitTranscription }) => {
-        console.log('TranscriptionUI rendered'); // Debug log
+    const TranscriptionView = memo(({ setTranscription, transcription, updateInvoice, handleRedo, submitTranscription }) => {
+        console.log('TranscriptionView rendered'); // Debug log
     
         const [tempTranscription, setTempTranscription] = useState(transcription);
         const [editingField, setEditingField] = useState(null);
@@ -249,4 +249,4 @@
         },
     });
 
-    export default TranscriptionUI;
+    export default TranscriptionView;

@@ -6,6 +6,7 @@ const recordSchema = new Schema({
     invoice: {
         type: Schema.Types.ObjectId,
         ref: 'Invoice',
+        required: true,
     },
     date: {
         type: Date,

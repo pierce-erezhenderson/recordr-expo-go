@@ -5,9 +5,9 @@ import { useSuccess } from "../../utils/SuccessContext.jsx";
 import { useLoading } from "../../utils/LoadingContext.jsx";
 import useRecordr from '../../hooks/useRecordr.jsx';
 import submitNewNote from '../../services/invoiceAPI';
-import StarterUI from '../UI/StarterUI.jsx';
-import RecognizeUI from '../UI/RecognizeUI.jsx';
-import TranscriptionUI from '../UI/TranscriptionUI.jsx';
+import StarterView from '../views/StarterView.jsx';
+import RecognizeView from '../views/RecognizeView.jsx';
+import TranscriptionView from '../views/TranscriptionView.jsx';
 import LoadingAnimation from '../bobs/LoadingAnimation.jsx';
 import SuccessAnimation from '../bobs/SuccessAnimation.jsx';
 import ImageCycler from '../bobs/ImageCycler.jsx'; 
@@ -77,20 +77,20 @@ const Recordr = () => {
                     </View>
                 );
             case success: return <SuccessAnimation />;
-            case serverResponse: return <TranscriptionUI
+            case serverResponse: return <TranscriptionView
                 transcription={transcription}
                 updateInvoice={updateInvoice}
                 handleRedo={handleRedo}
                 setTranscription={setTranscription}
                 submitTranscription={submitTranscription}
             />;
-            case recognize: return <RecognizeUI
+            case recognize: return <RecognizeView
                 recognize={recognize} 
                 handleSetLoading={handleSetLoading}
                 handleRedo={handleRedo}
                 stopRecording={stopRecording}
             />;
-            default: return <StarterUI 
+            default: return <StarterView 
                 startRecording={startRecording}
                 setRecognize={setRecognize}
             />;

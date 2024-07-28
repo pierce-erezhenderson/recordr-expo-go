@@ -1,6 +1,7 @@
 import Invoice from '../models/invoice.mjs';
+import { getClientInvoicesInternal } from '../utils/invoiceUtils.mjs'
 
-export const getAllUserInvoices = async (req, res) => {
+export const getAllInvoicesForUser = async (req, res) => {
     try {
         const invoices = await Invoice.find({ user: req.user._id }).populate('items');
         res.json(invoices);
@@ -22,24 +23,51 @@ export const getInvoiceById = async (req, res) => {
 };
 
 
-//*** CURRENTLY TESTING THE BELOW FUNCTION */
 
-export const getInvoiceByClient = async (req, res) => {
+// TO DELETE REDUNDANT API
+// export const getClientInvoices = async (req, res) => {
+//     const { clientId, invoiceNumber } = req.body;
+//     try {
+//         const invoice = await Invoice.find({ client: clientId }).populate('items');
+//         if (!invoice) {
+//             return res.status(404).json({ message: 'Invoice not found'});
+//         }
+//         res.json(invoice);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+
+export const getClientInvoices = async (req, res) => {
+    const { client } = req.body;
     try {
-        const invoice = await Invoice.findBy({ _id: invoiceId, client: clientId }).populate('items');
-        if (!invoice) {
-            return res.status(404).json({ message: 'Invoice not found'});
+        const invoices = await getClientInvoicesInternal(client);
+        if (!invoices) {
+            return res.status(404).json({ message: 'Invoices not found'});
         }
-        res.json(invoice);
+        res.json(invoices);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
 
-// should create an invoice if particular invoice not found (only in recordr-updated contexts?)
-// if (recordr) then createNewInvoice
-// else return error
+//*** CURRENTLY TESTING THE BELOW FUNCTIONS */
+
+export const handleClientDataForNewNote = async (req, res) => {
+    const { client } = req.body;
+    try {
+        const invoices = await getClientInvoicesInternal(client);
+        if (!invoices) {
+            const newClientInvoice = await createNewInvoice(client, {invoiceNumber: '0001'})
+            res.json(newClientInvoice);
+        }
+        res.json(invoices)
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+};
 
 export const createNewInvoice = async (req, res) => {
     try {
@@ -53,6 +81,12 @@ export const createNewInvoice = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+//*** CURRENTLY TESTING THE ABOVE FUNCTIONS */
+
+
+
+
 
 export const updateInvoice = async (req, res) => {
     try {

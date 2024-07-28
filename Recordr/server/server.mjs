@@ -8,7 +8,7 @@ import { getAccessToken } from './auth/googleAuth.mjs';
 import invoiceRoutes from './routes/invoiceRoutes.mjs';
 import userRoutes from './routes/userRoutes.mjs';
 import authRoutes from './routes/authRoutes.mjs';
-import recordrRoutes from './routes/recordrRoutes.mjs';
+import recordrRoutes from './routes/itemsRoutes.mjs';
 
 const app = express();
 

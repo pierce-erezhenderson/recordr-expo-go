@@ -6,45 +6,28 @@ const invoiceSchema = new Schema({
         type: String,
         required: true,
         unique: true,
+    },  
+    client: {
+        type: String,
+        required: true,
     },
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true, 
     },
-    clientName: {
-        type: String,
-        required: true,
+    metadata: {
+        type: Schema.Types.ObjectId,
+        ref: 'Metadata',
+        required: false,
     },
-    totalAmount: {
-        type: Number,
-        required: true,
-    },
-    rate: {
-        type: Number,
-        required: true,
-    },
-    createdDate: {
-        type: Date,
-        required: true,
-        default: Date.now,
-    },
-    sentStatus: {
-        type: Boolean,
-        required: true,
-        default: false,
-    },
-    paidStatus: {
-        type: Boolean,
-        required: true,
-        default: false,
-    },
-    items: [{
+    items: {
         type: Schema.Types.ObjectId,
         ref: 'Record',
         required: false,
-    }]
+    }
 }, { timestamps: true });
+
 
 const Invoice = model('Invoice', invoiceSchema);
 export default Invoice;

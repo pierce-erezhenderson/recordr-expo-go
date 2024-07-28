@@ -2,31 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import useInvoices from '../hooks/useInvoices.jsx';
 import InvoiceView from '../views/InvoiceView.jsx';
-
-const InvoiceViewState = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  UPDATED_INVOICE: 'updatedInvoice',
-  ALL_INVOICES: 'allInvoices',
-  CLIENT_INVOICES: 'clientInvoices',
-  SINGLE_INVOICE: 'singleInvoice',
-  DEFAULT: 'default'
-};
+import AllInvoicesView from '../views/AllInvoicesView.jsx';
+import ClientInvoicesView from '../views/ClientInvoicesView.jsx';
+import StarterView from '../views/StarterView.jsx';
 
 const Invoices = () => {
-  const [currentInvoiceView, setCurrentInvoiceView] = useState(InvoiceViewState.LOADING);
   const {
-    invoices,
-    clients,
     updatedInvoice,
     getAllInvoices,
     getClientInvoices,
-    getInvoice,
     setInvoices,
-    setClients,
-    setGetAllInvoices,
-    setUpdatedInvoice,
-    setGetClientInvoices
   } = useInvoices();
 
   useEffect(() => {
@@ -79,10 +64,7 @@ const Invoices = () => {
       );
       case success: return <SuccessAnimation />;
 
-
       // ----- UI for Recordr Output -----
-      // ADD UPDATED STATE TO UPDATE ITEM
-
       case updatedInvoice: 
         return (
           <InvoiceView 
@@ -90,41 +72,22 @@ const Invoices = () => {
           />
         );
 
-        
       // ----- UI for Invoice main screen -----
-
       case getAllInvoices: 
         return (
-          <View style={styles.getAllInvoices}>
-
-          </View>
+          <AllInvoicesView 
+          
+          />
         );
-
 
       // ----- UI for all invoices of specific client -----
-
       case getClientInvoices: 
         return (
-          <View>
-            <View style={getClientInvoices}>
-              <ClientIcon />
-              <Text style={styles.Header}>{client}</Text>
-            </View>
-            {/* <ListUI
-              getClientInvoices={getClientInvoices}
-              clients={clients}
-              invoices={invoices}
-            /> */}
-          </View>
+          <ClientInvoicesView 
+          
+          />
         );
-
-      default: return (
-        <View style={styles.catchAll}>
-          <Text style={styles.header}>What's next?</Text>
-          <RecordButton />
-          <GoToInvoicesButton />
-        </View>
-      )
+      default: return <StarterView />;
     }
   }
   
