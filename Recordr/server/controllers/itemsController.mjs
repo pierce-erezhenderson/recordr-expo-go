@@ -15,13 +15,21 @@ export const generateRecordrNote = async (req, res) => {
 
         audioChunks.push(Buffer.from(audio, 'base64'));
         
-        // Generating transcription
+        // ----- Generating transcription ------
+
+        // Step 1 -- Google STT
         const fullAudio = Buffer.concat(audioChunks);
         console.log('Full audio length:', fullAudio.length);
         const transcription = await speechToText(fullAudio);
         console.log('Transcription:', transcription);
+
+        // Step 2 -- OpenAI completion
         const response = await openAICompletion(transcription);
         console.log ('Response:', response);
+
+        // Step 3 -- Internal check (client and invoice number)
+        const clientCheck = response.client // need to figure out graceful way to handle errors
+        const 
 
         audioChunks = [];
             

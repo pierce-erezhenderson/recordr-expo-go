@@ -9,7 +9,7 @@ export const getAllUserInvoices = async (req, res) => {
     }
 };
 
-export const getSingleInvoice = async (req, res) => {
+export const getInvoiceById = async (req, res) => {
     try {
         const invoice = await Invoice.findById(req.params.id).populate('items');
         if (!invoice) {
@@ -20,6 +20,22 @@ export const getSingleInvoice = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+//*** CURRENTLY TESTING THE BELOW FUNCTION */
+
+export const getInvoiceByClient = async (req, res) => {
+    try {
+        const invoice = await Invoice.findBy({ _id: invoiceId, client: clientId }).populate('items');
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found'});
+        }
+        res.json(invoice);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 // should create an invoice if particular invoice not found (only in recordr-updated contexts?)
 // if (recordr) then createNewInvoice
