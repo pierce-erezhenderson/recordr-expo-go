@@ -1,5 +1,5 @@
 import Invoice from '../models/invoice.mjs';
-import { getClientInvoicesInternal } from '../utils/invoiceUtils.mjs'
+import { getClientInvoicesInternal, createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
 
 export const getAllInvoicesForUser = async (req, res) => {
     try {
@@ -55,15 +55,25 @@ export const getClientInvoices = async (req, res) => {
 
 //*** CURRENTLY TESTING THE BELOW FUNCTIONS */
 
-export const handleClientDataForNewNote = async (req, res) => {
+export const upsertForNewNote = async (req, res) => {
     const { client } = req.body;
     try {
-        const invoices = await getClientInvoicesInternal(client);
-        if (!invoices) {
-            const newClientInvoice = await createNewInvoice(client, {invoiceNumber: '0001'})
-            res.json(newClientInvoice);
+        let invoices = await getClientInvoicesInternal(client);
+        let statusCode = 200;
+        let message = 'Existing invoices found';
+
+        if (!invoices || invoices.length === 0) {
+            let invoiceData = [client, {invoiceNumber: '0001'}]
+            const newClientInvoice = await createNewInvoiceInternal(invoiceData);
+            invoices = [newClientInvoice];
+            statusCode = 201;
+            message = 'New invoice created';
         }
-        res.json(invoices)
+
+        res.status(statusCode).json({
+            message,
+            invoices
+        });
     } catch (error) {
         res.status(500).json({ message: error.message })
     }

@@ -6,15 +6,16 @@ const invoiceSchema = new Schema({
         type: String,
         required: true,
         unique: true,
-    },  
-    client: {
-        type: String,
-        required: true,
     },
-    user: {
+    // user: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'User',
+    //     // required: true,         //****** not required for now
+    // },
+    client: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true, 
+        ref: 'Client',
+        required: true,
     },
     metadata: {
         type: Schema.Types.ObjectId,

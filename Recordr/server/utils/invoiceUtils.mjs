@@ -1,9 +1,9 @@
 import Invoice from '../models/invoice.mjs';
-import { getClientInvoices } from '../controllers/invoiceController.mjs';
 
-// ------ Check for 'invoiceNumber' by 'client' ------
 
-export const checkForClient = async (response) => {
+// ------ Get all 'invoices' by 'client' ------
+
+export const getClientInvoicesInternal = async (response) => {
     try {
         const clientInvoices = await Invoice.find(response.client).populate('items');
         return clientInvoices;
@@ -13,11 +13,16 @@ export const checkForClient = async (response) => {
     }
 };
 
+
 // ------ Create new 'invoice' -------
 
-export const createNewInvoice = async (prop) => {
+export const createNewInvoiceInternal = async (invoiceData) => {
+    let client = invoiceData.client;
+    let invoiceNumber = invoiceData.invoiceNumber;
     try {
-        const newInvoice = await invoice()
+        const newInvoice = await Invoice(client, invoiceNumber);
+        await newInvoice.save();
+        return newInvoice;
     } catch (error) {
         console.error('Error in creating new invoice', error)
         throw error;
@@ -25,7 +30,5 @@ export const createNewInvoice = async (prop) => {
 }
 
 
-
-
-// ------ Increment from last saved 'invoiceNumber' ------
+// ------ Increment from last saved 'invoiceNumber' ------ // maybe don't need if it lives in model
 

@@ -3,11 +3,6 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const recordSchema = new Schema({
-    invoice: {
-        type: Schema.Types.ObjectId,
-        ref: 'Invoice',
-        required: true,
-    },
     date: {
         type: Date,
         required: true,
@@ -22,6 +17,11 @@ const recordSchema = new Schema({
     },
     details: {
         type: String,
+        required: true,
+    },
+    invoice: {
+        type: Schema.Types.ObjectId,
+        ref: 'Invoice',
         required: true,
     },
 }, { timestamps: true });

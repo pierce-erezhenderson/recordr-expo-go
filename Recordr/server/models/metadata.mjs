@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const metadataSchema = new Schema({
-    invoice: {
-        type: Schema.Types.ObjectId,
-        ref: 'Invoice',
-        required: true,
-    },
     totalAmount: {
         type: Number,
         required: true,
@@ -29,6 +24,11 @@ const metadataSchema = new Schema({
         type: Boolean,
         required: true,
         default: false,
+    },
+    invoice: {
+        type: Schema.Types.ObjectId,
+        ref: 'Invoice',
+        required: true,
     },
 }, { timestamps: true });
 
