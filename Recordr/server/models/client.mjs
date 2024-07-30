@@ -7,10 +7,10 @@ const clientSchema = new Schema({
         required: true,
         unique: true,
     },
-    invoices: {
-        type: Schema.Types.ObjectId,
+    invoices: [{
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Invoice',
-    },
+    }],
 }, {timestamps: true});
 
 const Client = model('Client', clientSchema);
