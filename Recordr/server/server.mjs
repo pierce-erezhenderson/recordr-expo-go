@@ -5,10 +5,12 @@ import cors from 'cors';
 import { getAccessToken } from './auth/googleAuth.mjs';
 
 // Import routes
-import invoiceRoutes from './routes/invoiceRoutes.mjs';
-import userRoutes from './routes/userRoutes.mjs';
 import authRoutes from './routes/authRoutes.mjs';
+import userRoutes from './routes/userRoutes.mjs';
+import clientRoutes from './routes/clientRoutes.mjs';
+import invoiceRoutes from './routes/invoiceRoutes.mjs';
 import recordrRoutes from './routes/itemsRoutes.mjs';
+
 
 const app = express();
 
@@ -19,9 +21,10 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 connectDB();
 getAccessToken();
 
-app.use('/api', userRoutes);
-app.use('/api', invoiceRoutes);
 app.use('/api', authRoutes);
+app.use('/api', userRoutes);
+app.use('/api', clientRoutes)
+app.use('/api', invoiceRoutes);
 app.use('/api', recordrRoutes);
 
 app.use((req, res, next) => {

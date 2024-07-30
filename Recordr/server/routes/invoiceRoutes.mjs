@@ -6,14 +6,11 @@ import {
     createNewInvoiceWithNumber, 
     updateInvoice, 
     deleteInvoice,
-    upsertForNewNote,
-    getInvoicesbyClient,
-    updateClientInvoice,
 } from '../controllers/invoiceController.mjs';
 
 const router = express.Router();
 
-// ------- General Routes for Invoices -------
+// ------- General Routes for 'invoices' -------
 
 router.get('/invoice', getAllInvoicesForUser); 
 router.get('/invoice/:id', getInvoiceById);
@@ -21,11 +18,8 @@ router.get('/invoice/:id', getInvoiceById);
 router.put('/invoice/:id', updateInvoice);
 router.delete('/invoice/:id', deleteInvoice);
 
-// ------- Routes for New Notes -------
+// ------- 'invoice' routes for new notes -------
 
-router.get('/client', getInvoicesbyClient);
-router.put('/client', updateClientInvoice);
-router.post('/client', upsertForNewNote);
 router.post('/invoice', createNewInvoiceWithNumber);
 
 

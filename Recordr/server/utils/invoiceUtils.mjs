@@ -1,4 +1,6 @@
 import Invoice from '../models/invoice.mjs';
+import Client from '../models/client.mjs';
+
 
 
 // ------ Get all 'invoices' by 'client' ------
@@ -16,67 +18,35 @@ export const getInvoicesByClientInternal = async (invoiceData) => {
 
 // ------ Create new 'invoice' -------
 
-export const createNewInvoiceInternal = async (client, invoiceNumber) => {
-    console.log('client:', client)
+export const createNewInvoiceInternal = async (clientName, invoiceNumber) => {
+    console.log('clientName:', clientName)
     console.log('invoiceNumber:', invoiceNumber)
+    
     try {
-        const newInvoice = new Invoice(
-            { 
-                client: client, 
-                invoiceNumber: invoiceNumber 
-            }
-        );
+        const clientDoc = await Client.findOne({ client: clientName });
+        if (!clientDoc) {
+            throw new Error(`Client with name ${clientName} not found`);
+        }
+
+        const newInvoice = new Invoice({ 
+            client: clientDoc._id, 
+            invoiceNumber 
+        });
         await newInvoice.save();
-        return newInvoice;  
+
+        clientDoc.invoices.push(newInvoice._id);
+        await clientDoc.save();
+
+        return newInvoice;
     } catch (error) {
         console.error('Error in creating new invoice', error)
         throw error;
     }
-}
+};
 
 
-// ------ Get Update Client Invoice ------
-
-export const updateClientInvoiceInternal = async (client, currentInvoiceNumber, newInvoiceNumber) => {
-    try {
-        const clientInvoices = await Invoice.findOneAndUpdate(
-            { 
-                client: client, 
-                invoiceNumber: currentInvoiceNumber
-            }, 
-            { invoiceNumber: newInvoiceNumber },
-            { new: true }
-        );
-
-        if (!clientInvoices) {
-            console.log('No invoice found with the provided criteria');
-            return null;
-        }
-
-        return clientInvoices;
-    } catch (error) {
-        console.error('Error getting invoices by client', error)
-        throw error
-    }
-}
 
 
-// ------ Get latest Invoice by Client ------
-
-export const getLatestClientInvoiceInternal = async (client) => {
-    console.log('clientId:', client)
-    try {
-        const latestInvoice = await Invoice.findOne(
-            { client: client }, 
-            {}, 
-            { sort: { updatedAt: -1 } }
-        );
-        return latestInvoice;
-    } catch (error) {
-        console.error('Error getting latest invoice by client', error)
-        throw error
-    }
-}; 
 
 // ------ Increment from last saved 'invoiceNumber' ------ // maybe don't need if it lives in model
 
