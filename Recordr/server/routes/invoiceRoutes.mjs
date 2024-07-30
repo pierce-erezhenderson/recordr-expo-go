@@ -2,29 +2,31 @@ import express from 'express';
 import { 
     getAllInvoicesForUser, 
     getInvoiceById, 
-    getClientInvoices,
-    // getInvoiceByClient,
-    createNewInvoice, 
+    // getOneInvoiceByClient,
+    createNewInvoiceWithNumber, 
     updateInvoice, 
     deleteInvoice,
-    upsertForNewNote
+    upsertForNewNote,
+    getInvoicesbyClient,
+    updateClientInvoice,
 } from '../controllers/invoiceController.mjs';
 
 const router = express.Router();
 
 // ------- General Routes for Invoices -------
 
-router.get('/invoices', getAllInvoicesForUser); 
-router.get('/invoices/:id', getInvoiceById);
-router.get('/client', getClientInvoices); 
+router.get('/invoice', getAllInvoicesForUser); 
+router.get('/invoice/:id', getInvoiceById);
 // router.get('/client/:clientId/invoices/:invoiceId', getInvoiceByClient); // create this controller
-router.post('/invoices', createNewInvoice);
-router.put('/invoices/:id', updateInvoice);
-router.delete('/invoices/:id', deleteInvoice);
+router.put('/invoice/:id', updateInvoice);
+router.delete('/invoice/:id', deleteInvoice);
 
 // ------- Routes for New Notes -------
 
+router.get('/client', getInvoicesbyClient);
+router.put('/client', updateClientInvoice);
 router.post('/client', upsertForNewNote);
+router.post('/invoice', createNewInvoiceWithNumber);
 
 
 

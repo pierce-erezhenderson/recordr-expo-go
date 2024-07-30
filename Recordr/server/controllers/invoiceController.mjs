@@ -1,10 +1,15 @@
 import Invoice from '../models/invoice.mjs';
-import { getClientInvoicesInternal, createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
+import { 
+    createNewInvoiceInternal,
+    updateClientInvoiceInternal, 
+    getLatestClientInvoiceInternal,
+    getInvoicesByClientInternal
+} from '../utils/invoiceUtils.mjs'
 
 export const getAllInvoicesForUser = async (req, res) => {
     try {
         const invoices = await Invoice.find({ user: req.user._id }).populate('items');
-        res.json(invoices);
+        res.json(invoices); 
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -39,60 +44,99 @@ export const getInvoiceById = async (req, res) => {
 // };
 
 
-export const getClientInvoices = async (req, res) => {
-    const { client } = req.body;
-    try {
-        const invoices = await getClientInvoicesInternal(client);
-        if (!invoices) {
-            return res.status(404).json({ message: 'Invoices not found'});
-        }
-        res.json(invoices);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+// export const getClientInvoices = async (req, res) => {
+//     const { client } = req.body;
+//     try {
+//         const invoices = await getClientInvoicesInternal(client);
+//         if (!invoices) {
+//             return res.status(404).json({ message: 'Invoices not found'});
+//         }
+//         res.json(invoices);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
 
 
 //*** CURRENTLY TESTING THE BELOW FUNCTIONS */
 
 export const upsertForNewNote = async (req, res) => {
-    const { client } = req.body;
-    try {
-        let invoices = await getClientInvoicesInternal(client);
-        let statusCode = 200;
-        let message = 'Existing invoices found';
+    // Handles invoice fetching or creation for new note
 
-        if (!invoices || invoices.length === 0) {
-            let invoiceData = [client, {invoiceNumber: '0001'}]
-            const newClientInvoice = await createNewInvoiceInternal(invoiceData);
-            invoices = [newClientInvoice];
+    const { client } = req.body;   // Making client variable an object for .findOne()       // user: req.user._id
+    try {
+        let invoice = await getLatestClientInvoiceInternal(client);
+        let statusCode = 200;
+        let message = 'Latest invoice found';
+
+        if (!invoice || invoice.length === 0) {
+            console.log('No invoices found, creating new invoice');
+            const newClientInvoice = await createNewInvoiceInternal({
+                client: client, 
+                invoiceNumber: '0001'
+            });
+            invoice = [newClientInvoice];
             statusCode = 201;
             message = 'New invoice created';
         }
 
         res.status(statusCode).json({
             message,
-            invoices
+            invoice
         });
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
 };
 
-export const createNewInvoice = async (req, res) => {
+export const createNewInvoiceWithNumber = async (req, res) => {
+    // Creates a new invoice for client with user provided invoice number
+
+    const { client: client } = req.body;
+    const { invoiceNumber: invoiceNumber } = req.body;
     try {
-        const invoice = new Invoice({
-            ...req.body,
-            user: req.user._id
-        });
-        await invoice.save();
+        const invoice = createNewInvoiceInternal(client, invoiceNumber);
+        console.log('New invoice created:', invoice);
         res.status(201).json(invoice);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
+export const getInvoicesbyClient = async (req, res) => {
+    // Gets all invoices by client
+
+    const { client } = req.body;
+    try {
+        const invoices = await getInvoicesByClientInternal(client);
+        res.status(200).json({
+            message: 'Client invoices found and returned',
+            invoices})
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    };
+};
+
+export const updateClientInvoice = async (req, res) => {
+    // Updates upsertForNewNote invoice with user provided invoice (irrespective of invoice number provided)
+    
+    const { client, currentInvoiceNumber, newInvoiceNumber } = req.body;
+    try {
+        const invoices = await updateClientInvoiceInternal(client, currentInvoiceNumber, newInvoiceNumber);
+        res.status(200).json({
+            message: 'Updated new client invoice',
+            invoices
+        });
+    } catch (error) {
+        console.error('Error updating invoice:', error);
+        res.status(500).json({ message: 'Error updating invoice', error: error.message });
+    };
+};
+
+
 //*** CURRENTLY TESTING THE ABOVE FUNCTIONS */
+
+
 
 
 
