@@ -1,12 +1,12 @@
 import {
     createNewInvoiceInternal,
-    getInvoicesByClientInternal,
 } from '../utils/invoiceUtils.mjs'
 import {
     getClientInternal,
     createNewClientInternal,
     getLatestClientInvoiceInternal,
     updateInvoiceByClientInternal,
+    getClientInvoicesInternal,
 } from '../utils/clientUtils.mjs';
 
 
@@ -32,29 +32,27 @@ export const upsertForNewNote = async (req, res) => {
     // Handles invoice fetching or creation for new note
 
     const { client } = req.body;   // Making client variable an object for .findOne()       // user: req.user._id
-    try {
-        let invoice = await getLatestClientInvoiceInternal(client);
-        let statusCode = 200;
-        let message = 'Latest invoice found';
-
-        if (!invoice || invoice.length === 0) {
+    const clientName = client
+    const invoice = await getLatestClientInvoiceInternal(clientName);
+  
+    switch (true) {
+        case (!invoice || invoice.length === 0):
             console.log('No invoices found, creating new invoice');
-            const newClientInvoice = await createNewInvoiceInternal(
-                client, 
-                '0001',
-            );
-            invoice = [newClientInvoice];
+            invoice = [await createInvoiceAndOrClient(clientName)]
             statusCode = 201;
             message = 'New invoice created';
-        }
+            break;
+            
+        case (invoice && invoice.length > 0):
+            statusCode = 200;
+            message = 'Latest invoice found';
+            break;
 
-        res.status(statusCode).json({
-            message,
-            invoice
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message })
+        default:
+            statusCode = 500;
+            message = 'Unexpected condition in upsertForNewNote'
     }
+    return { invoice, statusCode, message }
 };
 
 
@@ -87,15 +85,20 @@ export const createNewClient = async (req, res) => {
 
 // ----- Get 'invoices' by 'client' ------
 
-export const getInvoicesbyClient = async (req, res) => {
+export const getClientInvoices = async (req, res) => {
     // Gets all invoices by client
 
     const { client } = req.body;
     try {
-        const invoices = await getInvoicesByClientInternal(client);
+        const clientInvoices = await getClientInvoicesInternal(client);
+        
+        if (!clientInvoices) {
+            res.status(404).json({ message: "Failed to fetch client invoices"})
+        }
+
         res.status(200).json({
             message: 'Client invoices found and returned',
-            invoices})
+            clientInvoices})
     } catch (error) {
         res.status(500).json({ message: error.message })
     };

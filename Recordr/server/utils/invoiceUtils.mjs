@@ -3,19 +3,6 @@ import Client from '../models/client.mjs';
 
 
 
-// ------ Get all 'invoices' by 'client' ------
-
-export const getInvoicesByClientInternal = async (invoiceData) => {
-    try {
-        const clientInvoices = await Invoice.find(invoiceData).populate('items');
-        return clientInvoices;
-    } catch (error) {
-        console.error('Error in checkForClient:', error);
-        throw error;
-    }
-};
-
-
 // ------ Create new 'invoice' -------
 
 export const createNewInvoiceInternal = async (clientName, invoiceNumber) => {
@@ -47,6 +34,4 @@ export const createNewInvoiceInternal = async (clientName, invoiceNumber) => {
 
 
 
-
-// ------ Increment from last saved 'invoiceNumber' ------ // maybe don't need if it lives in model
 

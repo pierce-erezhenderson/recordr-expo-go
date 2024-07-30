@@ -4,7 +4,7 @@ import {
     getClient,
     createNewClient,
     // updateClient,
-    getInvoicesbyClient,
+    getClientInvoices,
     upsertForNewNote,
     updateInvoiceByClient,
 } from '../controllers/clientController.mjs';
@@ -12,12 +12,14 @@ import {
 const router = express.Router();
 
 // router.get('/client', getAllClients);   // to create
-router.get('/client/:id', getClient);
 router.post('/client', createNewClient);
 // router.put('/client', updateClient);    // to create
 
-router.get('/client/:id', getInvoicesbyClient);
-router.post('/client/:id', upsertForNewNote);
-router.put('/client/:id', updateInvoiceByClient);
+router.get('/client/:id', getClient);
+router.put('/client/:id', updateInvoiceByClient);   // is there a more sophiscated way to do address?
+
+router.get('/client/invoices/', getClientInvoices);
+router.post('/client/invoices', upsertForNewNote);
+
 
 export default router;
