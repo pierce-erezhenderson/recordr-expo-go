@@ -31,7 +31,22 @@ export const createNewInvoiceInternal = async (clientName, invoiceNumber) => {
     }
 };
 
+export const updateInvoiceInternal = async (invoiceId, updateData) => {
+    try {
+        console.log('Attempting to update invoice with ID:', invoiceId);
+        const updatedInvoice = await Invoice.findByIdAndUpdate(
+            invoiceId, 
+            { $set: updateData }, 
+            { new: true }
+        ).populate('items');
+        
+        if (!updatedInvoice) {
+            throw new Error('Invoice not found');
+        }
 
-
-
-
+        return updatedInvoice
+    } catch (error) {
+        console.error('Error updating invoice', error)
+        throw error;
+    }
+};

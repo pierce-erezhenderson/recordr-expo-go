@@ -1,7 +1,7 @@
 import Invoice from '../models/invoice.mjs';
 import { 
     createNewInvoiceInternal,
-//     updateClientInvoiceInternal, 
+    updateInvoiceInternal,
 //     getLatestClientInvoiceInternal,
 //     getInvoicesByClientInternal
 } from '../utils/invoiceUtils.mjs'
@@ -23,6 +23,16 @@ export const createNewInvoiceWithNumber = async (req, res) => {
     }
 };
 
+export const updateInvoice = async (req, res) => {
+    try {
+        const updatedInvoice = await updateInvoiceInternal(req.params.id, req.body);
+        res.status(200).json("Updated invoice:", updatedInvoice);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
 
 
 
@@ -41,22 +51,6 @@ export const getAllInvoicesForUser = async (req, res) => {
 export const getInvoiceById = async (req, res) => {
     try {
         const invoice = await Invoice.findById(req.params.id).populate('items');
-        if (!invoice) {
-            return res.status(404).json({ message: 'Invoice not found'});
-        }
-        res.json(invoice);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-export const updateInvoice = async (req, res) => {
-    try {
-        const invoice = await Invoice.findByIdAndUpdate(
-            req.params.id, 
-            { $set: req.body }, 
-            { new: true }
-        ).populate('items');
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found'});
         }
