@@ -13,14 +13,12 @@ const router = express.Router();
 // ------- General Routes for 'invoices' -------
 
 router.get('/invoice', getAllInvoicesForUser); 
+router.post('/invoice', createNewInvoiceWithNumber);
+// router.get('/client/:clientId/invoices/:invoiceId', getInvoiceByClient); //   this controller
 router.get('/invoice/:id', getInvoiceById);
-// router.get('/client/:clientId/invoices/:invoiceId', getInvoiceByClient); // create this controller
 router.put('/invoice/:id', updateInvoice);
 router.delete('/invoice/:id', deleteInvoice);
 
-// ------- 'invoice' routes for new notes -------
-
-router.post('/invoice', createNewInvoiceWithNumber);
 
 
 

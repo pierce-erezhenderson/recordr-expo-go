@@ -1,12 +1,13 @@
-import {
-    createNewInvoiceInternal,
-} from '../utils/invoiceUtils.mjs'
+// import {
+//     createNewInvoiceInternal,
+// } from '../utils/invoiceUtils.mjs'
 import {
     getClientInternal,
     createNewClientInternal,
     getLatestClientInvoiceInternal,
     updateInvoiceByClientInternal,
     getClientInvoicesInternal,
+    createInvoiceAndOrClient,
 } from '../utils/clientUtils.mjs';
 
 
@@ -29,30 +30,30 @@ export const getClient = async (req, res) => {
 
 
 export const upsertForNewNote = async (req, res) => {
-    // Handles invoice fetching or creation for new note
+    // description: Handles invoice fetching or creation for new note
+    // requires: 'client'
 
     const { client } = req.body;   // Making client variable an object for .findOne()       // user: req.user._id
     const clientName = client
-    const invoice = await getLatestClientInvoiceInternal(clientName);
-  
-    switch (true) {
-        case (!invoice || invoice.length === 0):
-            console.log('No invoices found, creating new invoice');
-            invoice = [await createInvoiceAndOrClient(clientName)]
-            statusCode = 201;
-            message = 'New invoice created';
-            break;
-            
-        case (invoice && invoice.length > 0):
-            statusCode = 200;
-            message = 'Latest invoice found';
-            break;
 
-        default:
-            statusCode = 500;
-            message = 'Unexpected condition in upsertForNewNote'
+    let invoice, statusCode, message
+    invoice = await getLatestClientInvoiceInternal(clientName);
+
+    if (!invoice || invoice.length === 0) {
+        console.log('No invoices found, creating new invoice');
+        invoice = [await createInvoiceAndOrClient(clientName)]
+        statusCode = 201;
+        message = 'New invoice created (client either created or exists)';
+    } else if (invoice || invoice.length === 0) {
+        statusCode = 200;
+        message = 'Latest invoice found';
+    } else {
+        statusCode = 500;
+        message = 'Unexpected condition in upsertForNewNote'
     }
-    return { invoice, statusCode, message }
+
+    res.status(statusCode).json({message, invoice});
+    return { invoice, statusCode, message };
 };
 
 

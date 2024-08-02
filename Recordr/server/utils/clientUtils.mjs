@@ -1,5 +1,7 @@
 import Client from '../models/client.mjs'
 import Invoice from '../models/invoice.mjs'
+import { createNewInvoiceInternal } from './invoiceUtils.mjs'
+
 
 
 // ------ Get 'client' by 'client' (name) ------
@@ -41,24 +43,26 @@ export const createNewClientInternal = async (client) => {
 
 // ------ Get **latest** 'invoice' by 'client' ------
 
-export const getLatestClientInvoiceInternal = async (client) => {
-    console.log('clientId:', client)
+export const getLatestClientInvoiceInternal = async (clientName) => {
+    console.log('clientId:', clientName)
     try {
-        const clientDoc = await Client.findOne({ client: client }).populate('invoices')
+        const clientDoc = await Client.findOne({ client: clientName }).populate('invoices')
         if (!clientDoc || clientDoc.length === 0) {
             console.log( "No client found" )
             return null
         }
-        console.log(clientDoc)
+        console.log("ClientDoc:", clientDoc)
 
-        const clientInvoices = clientDoc.invoices._id
+        const clientInvoiceIds = clientDoc.invoices.map(invoices => invoices._id)
 
-        if (!clientInvoices || clientInvoices.length === 0) {
-            console.log({ message: "Client invoice query is empty" })
+        if (!clientInvoiceIds || clientInvoiceIds.length === 0) {
+            console.log("Client invoice query is empty")
             return null
         }
 
-        const latestInvoice = await Invoice.findOne(clientInvoices, {}, { sort: { updatedAt: -1 } });
+        const latestInvoice = await Invoice.findOne({ _id: { $in: clientInvoiceIds } }, {}, { sort: { updatedAt: -1 } });
+        console.log("Lastest invoice Id:", latestInvoice);
+
         return latestInvoice;
     } catch (error) {
         console.error('Error getting latest invoice by client', error)
@@ -92,8 +96,8 @@ export const updateInvoiceByClientInternal = async (client, currentInvoiceNumber
     }
 };
 
-export const createInvoiceAndOrClient = async (client) => {
-    if (!client || client.length === 0) {
+export const createInvoiceAndOrClient = async (clientName) => {
+    if (!clientName || clientName.length === 0) {
         const newClient = await createNewClientInternal(clientName)
         clientName = newClient
     }
