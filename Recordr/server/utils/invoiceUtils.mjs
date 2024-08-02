@@ -5,24 +5,30 @@ import Client from '../models/client.mjs';
 
 // ------ Create new 'invoice' -------
 
-export const createNewInvoiceInternal = async (clientName, invoiceNumber) => {
-    console.log('clientName:', clientName)
-    console.log('invoiceNumber:', invoiceNumber)
+export const createNewInvoiceInternal = async (clientToUse, invoiceNumber) => {
+    const clientName = clientToUse.clientName
+    let clientToUse = clientToUse
+
+    // console.log('clientName:', clientName)
+    // console.log('invoiceNumber:', invoiceNumber)
     
     try {
-        const clientDoc = await Client.findOne({ client: clientName });
-        if (!clientDoc) {
-            throw new Error(`Client with name ${clientName} not found`);
+        console.log(`Looking for ${clientName} to initiate invoice`)
+        if (!clientToUse){
+            clientToUse = await Client.findOne({ clientName: clientName });
+            if (!clientToUse) {
+                throw new Error(`Client with name ${clientName} not found`);
+            }
         }
 
         const newInvoice = new Invoice({ 
-            client: clientDoc._id, 
+            clientName: clientToUse.clientName, 
             invoiceNumber 
         });
         await newInvoice.save();
 
-        clientDoc.invoices.push(newInvoice._id);
-        await clientDoc.save();
+        clientToUse.invoices.push(newInvoice._id);
+        await clientToUse.save();
 
         return newInvoice;
     } catch (error) {

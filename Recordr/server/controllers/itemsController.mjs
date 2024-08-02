@@ -41,6 +41,25 @@ export const generateRecordrNote = async (req, res) => {
     }
 };
 
+export const handleSavedNote = async (req, res) => {
+
+    // idea is save no data to DB until user saves note
+    // if (newNote)
+    //    ensure client
+    //    ensure invoice
+    // submit note (upsert - then you could use this when editing any saved Note, whether new or not)
+
+    invoice = await ensureClientAndCreateInvoice(existingClient, clientName)
+
+}
+
+
+
+// **************** currently unused ****************
+
+
+
+
 export const addRecordrNote = async (req, res) => {
     try {
         let invoice = await Invoice.findById(req.params.invoiceId);

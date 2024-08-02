@@ -12,7 +12,7 @@ const invoiceSchema = new Schema({
     //     ref: 'User',
     //     // required: true,         //****** not required for now
     // },
-    client: {
+    clientName: {
         type: String,
         ref: 'Client',
         required: true,

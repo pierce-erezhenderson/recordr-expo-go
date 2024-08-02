@@ -1,13 +1,13 @@
-// import {
-//     createNewInvoiceInternal,
-// } from '../utils/invoiceUtils.mjs'
+import {
+    // createNewInvoiceInternal,
+    updateInvoiceInternal,
+} from '../utils/invoiceUtils.mjs'
 import {
     getClientInternal,
     createNewClientInternal,
     getLatestClientInvoiceInternal,
-    updateInvoiceByClientInternal,
     getClientInvoicesInternal,
-    createInvoiceAndOrClient,
+    ensureClientAndCreateInvoice,
 } from '../utils/clientUtils.mjs';
 
 
@@ -29,31 +29,38 @@ export const getClient = async (req, res) => {
 };
 
 
-export const upsertForNewNote = async (req, res) => {
-    // description: Handles invoice fetching or creation for new note
-    // requires: 'client'
+export const handleClientInvoicesForNewNote = async (req, res) => {
+    const { clientName: clientName } = req.body;
+    let invoices, statusCode, message
+    
+    const clientInvoices = getClientInvoicesInternal(clientName)
 
-    const { client } = req.body;   // Making client variable an object for .findOne()       // user: req.user._id
-    const clientName = client
-
-    let invoice, statusCode, message
-    invoice = await getLatestClientInvoiceInternal(clientName);
-
-    if (!invoice || invoice.length === 0) {
-        console.log('No invoices found, creating new invoice');
-        invoice = [await createInvoiceAndOrClient(clientName)]
+    if (!clientInvoices || clientInvoices.length === 0) {
+        invoices = null
         statusCode = 201;
-        message = 'New invoice created (client either created or exists)';
-    } else if (invoice || invoice.length === 0) {
+        message = 'No client and/or invoices found';
+        res.status(statusCode).json({ message, invoices: null });
+        return { invoices: null, statusCode, message };
+    } 
+    // note on above ^ front end handles '0001' invoice number, gets returned to backend when user saves
+    
+    try {
+        const { latestInvoice } = await getLatestClientInvoiceInternal(clientName);
+        const otherInvoices = clientInvoices.filter(invoice => invoice.id !== latestInvoice.id);
+        
+        invoices = {
+            latestInvoice,
+            otherInvoices
+        }
         statusCode = 200;
-        message = 'Latest invoice found';
-    } else {
+        message = 'Client invoices found';
+    } catch (error) {
         statusCode = 500;
         message = 'Unexpected condition in upsertForNewNote'
     }
 
-    res.status(statusCode).json({message, invoice});
-    return { invoice, statusCode, message };
+    res.status(statusCode).json({message, invoices});
+    return { invoices, statusCode, message };
 };
 
 
@@ -111,9 +118,9 @@ export const getClientInvoices = async (req, res) => {
 export const updateInvoiceByClient = async (req, res) => {
     // Updates upsertForNewNote invoice with user provided invoice (irrespective of invoice number provided)
     
-    const { client, currentInvoiceNumber, newInvoiceNumber } = req.body;
+    const { _id, newInvoiceNumber } = req.body;
     try {
-        const invoices = await updateInvoiceByClientInternal(client, currentInvoiceNumber, newInvoiceNumber);
+        const invoices = await updateInvoiceInternal(_id, newInvoiceNumber);
         res.status(200).json({
             message: 'Updated new client invoice',
             invoices

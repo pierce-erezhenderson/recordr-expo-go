@@ -18,8 +18,8 @@ router.post('/client', createNewClient);
 router.get('/client/:id', getClient);
 router.put('/client/:id', updateInvoiceByClient);   // is there a more sophiscated way to do address?
 
-router.get('/client/invoices', getClientInvoices);
-router.post('/client/invoices', upsertForNewNote);
+// router.get('/client/invoices', getClientInvoices);
+router.get('/client/invoice', handleClientInvoicesForNewNote);
 
 
 export default router;
