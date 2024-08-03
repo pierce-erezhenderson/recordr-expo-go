@@ -1,0 +1,204 @@
+# Comprehensive Invoice Input Forms
+
+## 1. Basic Information
+- Invoice number (auto-generated or manual)
+- Date of invoice
+- Due date
+- Purchase order number (if applicable)
+- Customer account number
+
+## 2. Business Information (Seller)
+- Legal business name
+- DBA (Doing Business As) name (if different)
+- Address (multiple lines for street, city, state/province, postal code, country)
+- Phone number(s)
+- Email address
+- Website
+- Tax ID / VAT number
+- Business registration number
+
+## 3. Client Information
+- Client's full name or business name
+- Contact person's name (for businesses)
+- Address (multiple lines)
+- Phone number(s)
+- Email address
+- Client's tax ID or VAT number (for B2B transactions)
+
+## 4. Service/Product Details
+- Item description
+- Quantity
+- Unit price
+- Total price per item
+- Option for discounts per item
+- Tax rate per item (if varying rates apply)
+- Service date or delivery date
+
+## 5. Labor and Time Tracking (for service-based businesses)
+- Employee or contractor name
+- Date of work
+- Start and end times
+- Hourly rate
+- Total hours worked
+- Description of work performed
+
+## 6. Materials and Expenses
+- Description of materials or expenses
+- Quantity
+- Unit cost
+- Total cost
+- Markup percentage (if applicable)
+
+## 7. Subtotals and Totals
+- Subtotal before taxes and discounts
+- Discount amount or percentage
+- Discount reason or code
+- Tax amount
+- Shipping/delivery charges
+- Total amount due
+
+## 8. Payment Information
+- Accepted payment methods
+- Bank account details for wire transfers
+- PayPal or other online payment service information
+- Credit card payment option
+- Cash payment option
+- Cryptocurrency wallet addresses (if accepted)
+
+## 9. Payment Terms
+- Due date (if different from invoice date)
+- Early payment discount terms
+- Late payment penalties or interest rates
+- Installment payment options
+
+## 10. Additional Fees
+- Rush order fees
+- Cancellation fees
+- Restocking fees
+- Environmental fees or levies
+
+## 11. Shipping Information (for physical products)
+- Shipping address (if different from billing)
+- Shipping method
+- Tracking number
+- Estimated delivery date
+- Special handling instructions
+
+## 12. Contract and Project Details
+- Project name or ID
+- Contract number
+- Milestone or phase information
+- Percentage of project completed
+
+## 13. Recurring Billing Information
+- Billing frequency (monthly, quarterly, annually)
+- Next billing date
+- Auto-renewal terms
+
+## 14. Customization and Branding
+- Logo upload option
+- Color scheme selection
+- Custom footer text
+- Terms and conditions
+
+## 15. Multi-currency Support
+- Invoice currency
+- Exchange rate (if different from business's base currency)
+- Option to display totals in multiple currencies
+
+## 16. Tax Considerations
+- Multiple tax rates for different items or services
+- Tax exemption status and certificate number
+- Reverse charge mechanism for international B2B services
+- GST/HST for Canadian businesses
+
+## 17. Discounts and Promotions
+- Coupon code entry
+- Volume discounts
+- Loyalty program discounts
+- Seasonal or time-limited promotions
+
+## 18. Service Level Agreements (SLAs)
+- Response time commitments
+- Uptime guarantees
+- Penalty clauses for missed SLAs
+
+## 19. Attachments and Supporting Documents
+- Option to attach work orders
+- Time sheets
+- Expense receipts
+- Project deliverables
+
+## 20. Digital Signature
+- Option for electronic signature by the service provider
+- Client signature for approval (e.g., for contractors)
+
+## 21. Notes and Comments
+- Internal notes (not visible on invoice)
+- Notes to client
+- Payment instructions or special conditions
+
+## 22. Multi-language Support
+- Option to generate invoice in multiple languages
+- Translation of key terms and conditions
+
+## 23. Partial Payments and Deposits
+- Deposit amount received
+- Remaining balance
+- Payment schedule for installments
+
+## 24. Retainer and Prepayment Information
+- Retainer amount
+- Used amount from retainer
+- Remaining retainer balance
+
+## 25. Commission Tracking
+- Sales representative name
+- Commission rate or amount
+- Split commissions between multiple reps
+
+## 26. Industry-Specific Fields
+- For healthcare: insurance information, procedure codes
+- For construction: building permits, material specifications
+- For creative services: licensing terms, usage rights
+- For consulting: billable vs. non-billable hours
+
+## 27. Compliance and Regulatory Information
+- Industry-specific compliance statements
+- Professional license numbers
+- Insurance policy information
+
+## 28. Customer Loyalty and Feedback
+- Loyalty points earned on purchase
+- Customer satisfaction survey link
+- Referral program information
+
+## 29. Carbon Footprint and Sustainability
+- Carbon offset options
+- Eco-friendly packaging charges
+- Sustainability certifications
+
+## 30. International Trade
+- Harmonized System (HS) codes for products
+- Country of origin
+- Incoterms for shipping responsibilities
+- Import/export license numbers
+
+## 31. Batch Invoicing
+- Option to create multiple invoices for different customers
+- Ability to apply common elements across a batch
+
+## 32. Time Zone Considerations
+- Specification of time zone for service delivery times
+- Time zone for payment due dates
+
+## 33. Special Instructions
+- Assembly or installation instructions
+- Product care or maintenance notes
+- Return policy details
+
+## 34. Invoice Versioning
+- Version number for revised invoices
+- Reason for revision
+- Summary of changes from previous version
+

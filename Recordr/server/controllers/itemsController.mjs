@@ -1,7 +1,11 @@
 import { speechToText } from '../utils/apiGoogleSTT.mjs';
 import { openAICompletion } from '../utils/apiOpenAI.mjs';
-import Invoice from '../models/invoice.mjs';
-import Record from '../models/record.mjs';
+import Invoice from '../models/invoice.mjs';    // DO I NEED THIS ?
+import Record from '../models/items.mjs';       // DO I NEED THIS ?
+import { getClientInternal, createNewClientInternal } from '../utils/clientUtils.mjs'
+import { getInvoiceInternal, createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
+import { saveItem } from '../utils/itemUtils.mjs'
+
 
 let audioChunks = [];
 
@@ -27,9 +31,10 @@ export const generateRecordrNote = async (req, res) => {
         const response = await openAICompletion(transcription);
         console.log ('Response:', response);
 
-        // Step 3 -- Internal check (client and invoice number)
-        const clientCheck = response.client // need to figure out graceful way to handle errors
-        const 
+        // // Step 3 -- Internal check (client and invoice number)
+        // const clientCheck = response.client // need to figure out graceful way to handle errors
+        // const 
+        // ******* this could probably become 
 
         audioChunks = [];
             
@@ -41,17 +46,66 @@ export const generateRecordrNote = async (req, res) => {
     }
 };
 
-export const handleSavedNote = async (req, res) => {
 
+// ------ Handles all aspects of saving new item -------
+
+export const handleSavedNewItem = async (req, res) => {
+    try {
+        console.log('New note, ensuring client then invoice before saving item')
+        const { invoiceData, itemData } = req.body
+        let client, invoice
+
+        client = await getClientInternal(invoiceData.clientName)
+        invoice = await getInvoiceInternal(invoiceData._id)
+
+        if (!client._id) {
+            console.log('No client received, creating new client then invoice')
+            
+            client = await createNewClientInternal(clientName)
+            console.log(`New client with id: ${client._id}`)
+            
+            invoice = await createNewInvoiceInternal(clientName)
+            console.log(`New invoice with id: ${invoice._id}`)
+
+        } else if (!invoice._id) {
+            console.log('No invoice found, creating new invoice')
+            
+            invoice = await createNewInvoice(invoice._id)
+            console.log(`New invoice with id: ${invoice._id}`)
+
+        } else {
+            console.log(`Received client with id ${client._Id} and invoice with id ${invoice._id}`)
+        }
+
+        console.log(`Beginning to save item to invoice with id: ${invoice._id}`)
+        
+        const updatedInvoice = await saveItem(invoice, itemData)
+        console.log(`Successfully saved item with id: ${updatedInvoice.newItem._id}`)        
+        return { updatedInvoice }
+    } catch (error) {
+        console.error('Error saving item', error)
+        res.status(500).json({ error: 'Failed to save' })
+    }
+};
+
+
+// ------ Handles all aspects of saving an existing item -------
+
+export const handleSavedPrevItem = async (req, res) => {
+
+
+    // put?
     // idea is save no data to DB until user saves note
     // if (newNote)
     //    ensure client
     //    ensure invoice
     // submit note (upsert - then you could use this when editing any saved Note, whether new or not)
-
-    invoice = await ensureClientAndCreateInvoice(existingClient, clientName)
-
 }
+
+
+
+
+
 
 
 

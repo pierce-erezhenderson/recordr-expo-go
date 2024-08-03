@@ -9,7 +9,7 @@ import { createNewInvoiceInternal } from './invoiceUtils.mjs'
 export const getClientInternal = async (client) => {
     try {
         const clientInfo = await Client.findOne(client, {})
-        return clientInfo;
+        return { clientInfo };
     } catch (error) {
         console.error('Error getting client', error)
         throw error;
@@ -64,7 +64,7 @@ export const getLatestClientInvoiceInternal = async (clientName) => {
             { _id: { $in: clientDoc.invoices.map(invoices => invoices._id) } },
             {},
             { sort: { updatedAt: -1 } }
-        );
+        )
 
         console.log("Lastest invoice:", latestInvoice);
         return { existingClient: clientDoc, latestInvoice };
@@ -73,6 +73,41 @@ export const getLatestClientInvoiceInternal = async (clientName) => {
         throw error
     }
 };
+
+export const updateClientInternal = async (_id, newClientName) => {
+    try {
+        const updatedClient = await Client.findOneAndUpdate(
+            { _id },
+            { clientName: newClientName },
+            { new: true },
+        );
+        return { updatedClient };
+    } catch (error) {
+        console.error('Could not update ClientName')
+        throw error
+    }
+};
+
+
+
+
+
+
+
+
+// // ------ Checks 'client' exists -------
+
+// export const ensureClientInternal = async (clientName) => {
+//     try {
+//         const existingClient = await findOne({ clientName: clientName });
+//         return { existingClient };
+//     } catch (error) {
+//         console.error('Error creating new invoice and/or client', error)
+//         throw error
+//     }
+// };
+
+
 
 
 // ------ Update an 'invoice' by 'client' ------
@@ -101,20 +136,3 @@ export const getLatestClientInvoiceInternal = async (clientName) => {
 //         throw error
 //     }
 // };
-
-export const ensureClientAndCreateInvoice = async (existingClient, clientName) => {
-    try {
-        let clientToUse = existingClient
-
-        if (!existingClient) {
-            console.log('No client received, creating new client')
-            clientToUse = await createNewClientInternal(clientName)
-        }
-        console.log('Creating new invoice')
-        const newInvoice = await createNewInvoiceInternal(clientToUse, '0001')
-        return clientToUse, newInvoice;
-    } catch (error) {
-        console.error('Error creating new invoice and/or client', error)
-        throw error
-    }
-};

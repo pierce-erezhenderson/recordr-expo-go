@@ -3,11 +3,25 @@ import Client from '../models/client.mjs';
 
 
 
+// ------ Get 'invoice' -------
+
+export const getInvoiceInternal = async (invoiceId) => {
+    try {
+        const { _id } = invoiceId._id
+
+        const invoiceInfo = await Invoice.findOne({ _id })
+        return { invoiceInfo };
+    } catch (error) {
+        console.log('Error getting invoice', error)
+        throw error;
+    }
+};
+
+
 // ------ Create new 'invoice' -------
 
 export const createNewInvoiceInternal = async (clientToUse, invoiceNumber) => {
     const clientName = clientToUse.clientName
-    let clientToUse = clientToUse
 
     // console.log('clientName:', clientName)
     // console.log('invoiceNumber:', invoiceNumber)
