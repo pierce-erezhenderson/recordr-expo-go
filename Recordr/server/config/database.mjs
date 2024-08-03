@@ -8,7 +8,13 @@ const connectDB = async () => {
         console.log('Connected to MongoDB');
 
         await syncInvoiceIndexes();
-        console.log('Indexes synced successfully');
+        console.log(`                                      
+
+        { les get it } ----------- Beginning server console here ----------- { ᕦ(ò_óˇ)ᕤ }
+
+        
+
+        `)
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
     }

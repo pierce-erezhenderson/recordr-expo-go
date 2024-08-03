@@ -8,10 +8,6 @@ const itemSchema = new Schema({
         required: true,
     },
     hours: {
-        type: Number,
-        required: true,
-    },
-    client: {
         type: String,
         required: true,
     },
@@ -20,7 +16,7 @@ const itemSchema = new Schema({
         required: true,
     },
     invoice: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Invoice',
         required: true,
     },

@@ -61,30 +61,35 @@ export const handleSavedNewItem = async (req, res) => {
         //   If new: invoiceNumber (eg, '0001') 
         //   If exists: _id (eg, '66ad4c6a56699ff6fe39595c')
 
-        if (!client._id) {
+        if (!client) {
             console.log('No client received, creating new client then invoice')
             
-            client = await createNewClientInternal(clientName)
+            client = await createNewClientInternal(invoiceData.clientName)
             console.log(`New client with id: ${client._id}`)
             
-            invoice = await createNewInvoiceInternal(clientName)
-            console.log(`New invoice with id: ${invoice._id}`)
+            invoice = await createNewInvoiceInternal(client.clientName)
+            itemData.invoice = invoice._id
+            console.log(`New invoice with id: ${invoice._id}; itemData's invoice value is ${itemData.invoice}`)
 
         } else if (!invoice.validId) {
             console.log('No invoice received, creating new invoice')
             
             invoice = await createNewInvoiceInternal(invoiceData.invoiceNumber, invoiceData.clientName)
             console.log(`New invoice with id: ${invoice._id}`)
+            
+            itemData.invoice = invoice._id
+            console.log(`New invoice with id: ${invoice._id}; itemData's invoice value is ${itemData.invoice}`)
 
         } else {
-            console.log(`Received client with id ${client._Id} and invoice with id ${invoice._id}`)
+            console.log(`Received client with id ${ client._id } and invoice with id ${ invoice.validId }`)
+            itemData.invoice = invoice.validId
         }
 
-        console.log(`Beginning to save item to invoice with id: ${invoice._id}`)
+        console.log(`Beginning to save item to invoice with id: ${ invoice.validId }`)
         
-        const { updatedInvoice } = await saveItem(invoice, itemData)
-        console.log(`Successfully saved item to ${updatedInvoice}`)        
-        return updatedInvoice;
+        const savedItem = await saveItem(invoice, itemData)
+        console.log(`Successfully saved item to ${savedItem.invoice}`)        
+        return savedItem;
     } catch (error) {
         console.error('Error saving item', error)
         res.status(500).json({ error: 'Failed to save' })

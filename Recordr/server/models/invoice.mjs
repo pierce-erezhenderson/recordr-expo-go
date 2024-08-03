@@ -17,7 +17,7 @@ const invoiceSchema = new Schema({
         required: true,
     },
     metadata: [{
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Metadata',
         required: false,
     }],
@@ -38,6 +38,7 @@ export async function syncInvoiceIndexes() {
         console.log('Attemping to sync indexes')
       await Invoice.syncIndexes();
       console.log('Invoice indexes synced successfully');
+
     } catch (error) {
       console.error('Error syncing invoice indexes:', error);
     }

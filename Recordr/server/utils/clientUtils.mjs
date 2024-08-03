@@ -11,6 +11,12 @@ export const getClientInternal = async (client) => {
         const { clientName } = client;
         console.log(clientName)
         const clientInfo = await Client.findOne({ clientName }, {})
+
+        if (!clientInfo) {
+            console.log('No client found')
+            return null;
+        }
+
         console.log('Client found, returning:', clientInfo)
         return clientInfo;
     } catch (error) {
