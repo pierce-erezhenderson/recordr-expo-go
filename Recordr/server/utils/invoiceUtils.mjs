@@ -7,9 +7,9 @@ import Client from '../models/client.mjs';
 
 export const getInvoiceInternal = async (invoiceId) => {
     try {
-        const { _id } = invoiceId._id
-
-        const invoiceInfo = await Invoice.findOne({ _id })
+        console.log(invoiceId)
+        const invoiceInfo = await Invoice.findOne({ invoiceId })
+        console.log('Invoice found, returning:', invoiceInfo)
         return { invoiceInfo };
     } catch (error) {
         console.log('Error getting invoice', error)
@@ -20,36 +20,29 @@ export const getInvoiceInternal = async (invoiceId) => {
 
 // ------ Create new 'invoice' -------
 
-export const createNewInvoiceInternal = async (clientToUse, invoiceNumber) => {
-    const clientName = clientToUse.clientName
-
-    // console.log('clientName:', clientName)
-    // console.log('invoiceNumber:', invoiceNumber)
-    
+export const createNewInvoiceInternal = async (invoiceNumber, clientName) => {
     try {
-        console.log(`Looking for ${clientName} to initiate invoice`)
-        if (!clientToUse){
-            clientToUse = await Client.findOne({ clientName: clientName });
-            if (!clientToUse) {
-                throw new Error(`Client with name ${clientName} not found`);
-            }
-        }
+        console.log(`Attempting to create new invoice with invoiceNumber: ${invoiceNumber} and clientName: ${clientName}`)
 
         const newInvoice = new Invoice({ 
-            clientName: clientToUse.clientName, 
-            invoiceNumber 
+            clientName: clientName, 
+            invoiceNumber: invoiceNumber
         });
         await newInvoice.save();
-
-        clientToUse.invoices.push(newInvoice._id);
-        await clientToUse.save();
-
         return newInvoice;
     } catch (error) {
         console.error('Error in creating new invoice', error)
         throw error;
     }
 };
+
+        // console.log(`Looking for ${invoice._id} to initiate invoice`)
+        // if (!clientToUse){
+        //     clientToUse = await Client.findOne({ clientName: clientName });
+        //     if (!clientToUse) {
+        //         throw new Error(`Client with name ${clientName} not found`);
+        //     }
+        // }
 
 export const updateInvoiceInternal = async (invoiceId, updateData) => {
     try {

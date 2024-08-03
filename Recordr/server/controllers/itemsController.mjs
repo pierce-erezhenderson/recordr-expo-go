@@ -55,8 +55,11 @@ export const handleSavedNewItem = async (req, res) => {
         const { invoiceData, itemData } = req.body
         let client, invoice
 
-        client = await getClientInternal(invoiceData.clientName)
-        invoice = await getInvoiceInternal(invoiceData._id)
+        client = await getClientInternal({ clientName: invoiceData.clientName })
+        invoice = { validId: invoiceData._id }
+        // Frontend sends one of two -- 
+        //   If new: invoiceNumber (eg, '0001') 
+        //   If exists: _id (eg, '66ad4c6a56699ff6fe39595c')
 
         if (!client._id) {
             console.log('No client received, creating new client then invoice')
@@ -67,10 +70,10 @@ export const handleSavedNewItem = async (req, res) => {
             invoice = await createNewInvoiceInternal(clientName)
             console.log(`New invoice with id: ${invoice._id}`)
 
-        } else if (!invoice._id) {
-            console.log('No invoice found, creating new invoice')
+        } else if (!invoice.validId) {
+            console.log('No invoice received, creating new invoice')
             
-            invoice = await createNewInvoice(invoice._id)
+            invoice = await createNewInvoiceInternal(invoiceData.invoiceNumber, invoiceData.clientName)
             console.log(`New invoice with id: ${invoice._id}`)
 
         } else {
@@ -79,9 +82,9 @@ export const handleSavedNewItem = async (req, res) => {
 
         console.log(`Beginning to save item to invoice with id: ${invoice._id}`)
         
-        const updatedInvoice = await saveItem(invoice, itemData)
-        console.log(`Successfully saved item with id: ${updatedInvoice.newItem._id}`)        
-        return { updatedInvoice }
+        const { updatedInvoice } = await saveItem(invoice, itemData)
+        console.log(`Successfully saved item to ${updatedInvoice}`)        
+        return updatedInvoice;
     } catch (error) {
         console.error('Error saving item', error)
         res.status(500).json({ error: 'Failed to save' })

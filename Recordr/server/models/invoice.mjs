@@ -5,7 +5,6 @@ const invoiceSchema = new Schema({
     invoiceNumber: {
         type: String,
         required: true,
-        unique: true,
     },
     // user: {
     //     type: Schema.Types.ObjectId,
@@ -17,18 +16,31 @@ const invoiceSchema = new Schema({
         ref: 'Client',
         required: true,
     },
-    metadata: {
+    metadata: [{
         type: Schema.Types.ObjectId,
         ref: 'Metadata',
         required: false,
-    },
-    items: {
+    }],
+    items: [{
         type: Schema.Types.ObjectId,
         ref: 'Record',
         required: false,
-    }
+    }]
 }, { timestamps: true });
 
+invoiceSchema.index({ clientName: 1, invoiceNumber: 1 }, { unique: true });
 
 const Invoice = model('Invoice', invoiceSchema);
+
+// Function to sync indexes
+export async function syncInvoiceIndexes() {
+    try {
+        console.log('Attemping to sync indexes')
+      await Invoice.syncIndexes();
+      console.log('Invoice indexes synced successfully');
+    } catch (error) {
+      console.error('Error syncing invoice indexes:', error);
+    }
+  }
+
 export default Invoice;

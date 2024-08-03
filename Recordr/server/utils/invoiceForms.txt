@@ -16,7 +16,7 @@
 - Website
 - Tax ID / VAT number
 - Business registration number
-
+s
 ## 3. Client Information
 - Client's full name or business name
 - Contact person's name (for businesses)

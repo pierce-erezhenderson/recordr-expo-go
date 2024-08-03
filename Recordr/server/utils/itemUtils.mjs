@@ -5,8 +5,9 @@ export const saveItem = async (invoice, itemData) => {
     try {
         console.log('Beginning to save items internally')
 
+        const invoiceId = invoice._id
         const updatedInvoice = await Invoice.findOneAndUpdate(
-            { _id: invoice._id },
+            { invoiceId },
             { itemData },
             { new: true }
         );

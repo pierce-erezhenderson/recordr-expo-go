@@ -8,8 +8,11 @@ import { createNewInvoiceInternal } from './invoiceUtils.mjs'
 
 export const getClientInternal = async (client) => {
     try {
-        const clientInfo = await Client.findOne(client, {})
-        return { clientInfo };
+        const { clientName } = client;
+        console.log(clientName)
+        const clientInfo = await Client.findOne({ clientName }, {})
+        console.log('Client found, returning:', clientInfo)
+        return clientInfo;
     } catch (error) {
         console.error('Error getting client', error)
         throw error;
