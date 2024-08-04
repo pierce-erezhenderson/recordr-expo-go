@@ -1,7 +1,7 @@
 import express from 'express';
 import { 
     getAllInvoicesForUser, 
-    getInvoiceById, 
+    getInvoice, 
     // getOneInvoiceByClient,
     createNewInvoiceWithNumber, 
     updateInvoice, 
@@ -15,7 +15,9 @@ const router = express.Router();
 router.get('/invoice', getAllInvoicesForUser); 
 router.post('/invoice', createNewInvoiceWithNumber);
 // router.get('/client/:clientId/invoices/:invoiceId', getInvoiceByClient); //   this controller
-router.get('/invoice/:id', getInvoiceById);
+router.get('/invoice/:id', getInvoice);
+
+
 router.put('/invoice/:id', updateInvoice);
 router.delete('/invoice/:id', deleteInvoice);
 

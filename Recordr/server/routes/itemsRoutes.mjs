@@ -1,17 +1,18 @@
 import express from 'express';
 import { 
     generateRecordrNote,
-    handleSavedNewItem,
-    handleSavedPrevItem
+    handleUpsertItem,
+    handleNewItemCreateInvoice,
+    handleNewItemCreateClient
 } from '../controllers/itemsController.mjs';
 
 const router = express.Router();
 
 router.post('/generateRecordrNote', generateRecordrNote);
 
-router.post('/client/invoice/item', handleSavedNewItem);
-
-router.put('/client/invoice/item/:id', handleSavedPrevItem);
+router.put('/client/invoice/item', handleUpsertItem);
+router.post('/client/item', handleNewItemCreateInvoice)
+router.post('/item', handleNewItemCreateClient)
 
 
 // // Invoice item management

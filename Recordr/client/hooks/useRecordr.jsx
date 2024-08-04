@@ -39,10 +39,14 @@ const useSpeechRecognition = () => {
     const stopRecording = async () => {
         console.log('Stopping recording...');
         setRecording(undefined);
+        
         await recording.stopAndUnloadAsync();
+
         const uri = recording.getURI();
         console.log('Recording URI:', uri); 
+
         await processAudioFile(uri);
+
         setRecognize(false);
     };
 

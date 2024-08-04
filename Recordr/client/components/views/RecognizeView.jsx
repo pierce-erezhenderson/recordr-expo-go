@@ -3,11 +3,12 @@ import Svg, { G, Path, Polygon } from 'react-native-svg';
 import ImageCycler from '../bobs/ImageCycler';
 import RecordingSignal from '../bobs/RecordingSignal';
 
-const RecognizeUI = ({recognize, handleSetLoading, handleRedo, stopRecording}) => {
+const RecognizeView = ({recognize, handleSetLoading, handleRedo, stopRecording, handleGetClientInvoices}) => {
 
     const handleDonePress = () => {
         handleSetLoading(true);
         stopRecording();
+        handleGetClientInvoices();
         // When stopRecording is complete, you might want to set loading to false
         // and trigger the transition to TranscriptionUI
     };
@@ -149,4 +150,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default RecognizeUI;
+export default RecognizeView;

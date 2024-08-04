@@ -15,7 +15,7 @@ import { invoices, clients } from '../hooks/useRecordr'
 
 const useInvoices = () => {
     const [invoices, setInvoices] = useState([]);
-    const [clients, setClients] = useState();
+    const [clients, setClients] = useState([]);
     const { loading, setLoading } = useLoading();
 
     // States to render UIs
@@ -85,28 +85,28 @@ const useInvoices = () => {
     };
 
     const fetchClientInvoices = async (client) => {
-    try {
-        const response = await fetch(`${ API_URL }/invoices`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            // should I auth these calls?
-        },
-        body: ({
-            clientName: client
-        })
-        });
+        try {
+            const response = await fetch(`${ API_URL }/invoices/client`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // should I auth these calls?
+                },
+                body: ({
+                    clientName: client
+                })
+            });
 
-        if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching specific client invoices:', error);
+            throw error;
         }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching specific client invoices:', error);
-        throw error;
-    }
     };
 
 
@@ -131,7 +131,7 @@ const useInvoices = () => {
 
         const data = await response.json();
 
-        const checkInvoiceExists = (data) => {
+        const checkInvoiceExists = async (data) => {
             if(!InvoiceNumber) {
                 try {
                     const newInvoiceNumber = await createNewInvoice();
@@ -212,6 +212,9 @@ const useInvoices = () => {
         handleEditInvoice,
         handleViewAll,
         handleBrowseInvoices,
+
+        // API calls
+        fetchClientInvoices,
 
         RenderTotalFooter,
         RenderClientInvoicesList

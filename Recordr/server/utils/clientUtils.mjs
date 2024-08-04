@@ -83,6 +83,22 @@ export const getLatestClientInvoiceInternal = async (clientName) => {
     }
 };
 
+
+// ------- Ensure 'client' (get or create) --------
+
+export const ensureClient = async (clientName) => {
+    try {
+        let client = await getClientInternal({ clientName });
+        if (!client) {
+            client = await createNewClientInternal(clientName);
+        }
+        return client;
+    } catch (error) {
+        console.error('Failed to create client', error.message)
+        throw error
+    } 
+};
+
 export const updateClientInternal = async (_id, newClientName) => {
     try {
         const updatedClient = await Client.findOneAndUpdate(

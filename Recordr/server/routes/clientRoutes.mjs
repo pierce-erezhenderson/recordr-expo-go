@@ -20,7 +20,7 @@ router.get('/client/:id', getClient);
 router.put('/client/:id', updateInvoiceByClient);   // is there a more sophiscated way to do address?
 
 // router.get('/client/invoices', getClientInvoices);
-router.get('/client/invoice', handleClientInvoicesForNewNote);
+router.get('/client/invoice', getAllClientInvoices);
 
 
 export default router;

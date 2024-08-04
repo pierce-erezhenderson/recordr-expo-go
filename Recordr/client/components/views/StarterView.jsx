@@ -3,7 +3,7 @@ import Svg, { G, Path, Polygon } from 'react-native-svg';
 import ImageCycler from '../bobs/ImageCycler';
 import { useEffect } from 'react';
 
-const StarterUI = ({ startRecording, setRecognize }) => {
+const StarterView = ({ startRecording, setRecognize }) => {
 
     const handleRecordPress = () => {
         // handleSetLoading(true);
@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default StarterUI;
+export default StarterView;

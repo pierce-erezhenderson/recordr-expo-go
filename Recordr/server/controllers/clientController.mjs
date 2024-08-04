@@ -30,7 +30,7 @@ export const getClient = async (req, res) => {
 };
 
 
-export const handleClientInvoicesForNewNote = async (req, res) => {
+export const getAllClientInvoices = async (req, res) => {
     const { clientName: clientName } = req.body;
     let invoices, statusCode, message
     

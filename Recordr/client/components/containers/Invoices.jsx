@@ -5,6 +5,7 @@ import InvoiceView from '../views/InvoiceView.jsx';
 import AllInvoicesView from '../views/AllInvoicesView.jsx';
 import ClientInvoicesView from '../views/ClientInvoicesView.jsx';
 import StarterView from '../views/StarterView.jsx';
+import { handleUpsertItem } from '../../../server/controllers/itemsController.mjs';
 
 const Invoices = () => {
   const {
@@ -38,17 +39,45 @@ const Invoices = () => {
     }
   };
 
-  handleEditInvoice = () => {
-      // API call to fetch invoice
+
+  // ------ Invoice data functionality ------
+
+  handleAllClients = () => {
+      // API call to fetch client invoices // handleViewAll
   };
 
-  handleViewAll = () => {
-      // API call to fetch client invoices
-  };
-
-  handleBrowseInvoices = () => {
+  handleAllInvoicesForClient = () => {
       // API call to fetch invoices for particular client
+  }
+
+
+  // ------ Save button functionality ------
+
+  handleNewItemCreateClientApi = () => {
+      //Save item and create client and invoice
+  }
+  
+  handleNewItemCreateInvoiceApi = () => {
+    //Save item with existing client and create invoice
+  }
+
+  handleUpsertItem = () => {
+    // Save item with existing client and invoice
+  }
+
+
+  // *** LATER ***
+  
+  handleAllInvoiceItems = () => {
+    // API call to fetch invoice
   };
+
+  handleInvoiceData = () => {
+    // sum/currency/hours
+    // clientName
+    // InvoiceNumber
+  }
+
 
 
   // ----- UI for Invoices Output -----

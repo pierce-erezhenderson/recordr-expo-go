@@ -25,7 +25,11 @@ const Recordr = () => {
         serverResponse,
         setServerResponse,
         cancelRecording
-    } = useRecordr()
+    } = useRecordr();
+    const {
+        clients, 
+        setClients
+    } = useInvoices();
 
     const handleSetLoading = (isLoading) => {
         setLoading(isLoading);
@@ -48,6 +52,18 @@ const Recordr = () => {
         }, 2000); // 2 second artificial loading
     }, [handleSetLoading, setRecognize]);
 
+    const handleGetClientInvoices = async () => {
+        handleSetLoading(true);
+        setError(null);
+        try {
+            const data = await fetchClientInvoices();
+            setClients(data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            handleSetLoading(false);
+        }
+    }
 
     // maybe add a clearalldata function later
 
@@ -83,12 +99,14 @@ const Recordr = () => {
                 handleRedo={handleRedo}
                 setTranscription={setTranscription}
                 submitTranscription={submitTranscription}
+                clients={clients}
             />;
             case recognize: return <RecognizeView
                 recognize={recognize} 
                 handleSetLoading={handleSetLoading}
                 handleRedo={handleRedo}
                 stopRecording={stopRecording}
+                handleGetClientInvoices={handleGetClientInvoices}
             />;
             default: return <StarterView 
                 startRecording={startRecording}

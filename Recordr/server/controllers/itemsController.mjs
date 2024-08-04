@@ -2,9 +2,9 @@ import { speechToText } from '../utils/apiGoogleSTT.mjs';
 import { openAICompletion } from '../utils/apiOpenAI.mjs';
 import Invoice from '../models/invoice.mjs';    // DO I NEED THIS ?
 import Record from '../models/items.mjs';       // DO I NEED THIS ?
-import { getClientInternal, createNewClientInternal } from '../utils/clientUtils.mjs'
-import { getInvoiceInternal, createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
-import { saveItem } from '../utils/itemUtils.mjs'
+import { createNewClientInternal } from '../utils/clientUtils.mjs'
+import { createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
+import { saveItemInternal } from '../utils/itemUtils.mjs'
 
 
 let audioChunks = [];
@@ -47,49 +47,33 @@ export const generateRecordrNote = async (req, res) => {
 };
 
 
-// ------ Handles all aspects of saving new item -------
+// ------ Handles saving new item without 'client' or 'invoice' -------
 
-export const handleSavedNewItem = async (req, res) => {
+export const handleNewItemCreateClient = async (req, res) => {
+
     try {
         console.log('New note, ensuring client then invoice before saving item')
         const { invoiceData, itemData } = req.body
-        let client, invoice
 
-        client = await getClientInternal({ clientName: invoiceData.clientName })
-        invoice = { validId: invoiceData._id }
-        // Frontend sends one of two -- 
-        //   If new: invoiceNumber (eg, '0001') 
-        //   If exists: _id (eg, '66ad4c6a56699ff6fe39595c')
-
-        if (!client) {
-            console.log('No client received, creating new client then invoice')
-            
-            client = await createNewClientInternal(invoiceData.clientName)
-            console.log(`New client with id: ${client._id}`)
-            
-            invoice = await createNewInvoiceInternal(client.clientName)
-            itemData.invoice = invoice._id
-            console.log(`New invoice with id: ${invoice._id}; itemData's invoice value is ${itemData.invoice}`)
-
-        } else if (!invoice.validId) {
-            console.log('No invoice received, creating new invoice')
-            
-            invoice = await createNewInvoiceInternal(invoiceData.invoiceNumber, invoiceData.clientName)
-            console.log(`New invoice with id: ${invoice._id}`)
-            
-            itemData.invoice = invoice._id
-            console.log(`New invoice with id: ${invoice._id}; itemData's invoice value is ${itemData.invoice}`)
-
-        } else {
-            console.log(`Received client with id ${ client._id } and invoice with id ${ invoice.validId }`)
-            itemData.invoice = invoice.validId
+        if (!invoiceData || !itemData) {
+            return res.status(400).json({ error: 'Missing required data' });
         }
 
-        console.log(`Beginning to save item to invoice with id: ${ invoice.validId }`)
-        
-        const savedItem = await saveItem(invoice, itemData)
-        console.log(`Successfully saved item to ${savedItem.invoice}`)        
-        return savedItem;
+        const newClient = await createNewClientInternal(invoiceData.clientName)
+        console.log(`Client:`, newClient)
+
+        const invoice = await createNewInvoiceInternal(invoiceData, newClient)
+        console.log(`Invoice:`, invoice)
+
+        itemData.invoice = invoice._id
+        console.log(`itemData.invoice`, itemData.invoice)
+
+        const savedItem = await saveItemInternal(invoice, itemData)
+
+        console.log(`savedItem`, savedItem)
+
+        console.log(`Successfully saved item to ${savedItem.invoice}`)
+        res.status(200).json(savedItem);
     } catch (error) {
         console.error('Error saving item', error)
         res.status(500).json({ error: 'Failed to save' })
@@ -97,18 +81,66 @@ export const handleSavedNewItem = async (req, res) => {
 };
 
 
-// ------ Handles all aspects of saving an existing item -------
+// ------ Handles saving new item without 'invoice' -------
 
-export const handleSavedPrevItem = async (req, res) => {
+export const handleNewItemCreateInvoice = async (req, res) => {
+
+    try {
+        console.log('New note, ensuring client then invoice before saving item')
+        const { invoiceData, itemData } = req.body
+
+        if (!invoiceData || !itemData) {
+            return res.status(400).json({ error: 'Missing required data' });
+        }
+
+        console.log(`Client:`, invoiceData.clientName)
+
+        const invoice = await createNewInvoiceInternal(invoiceData.newInvoiceNumber, invoiceData.clientName)
+        console.log(`Invoice:`, invoice)
+
+        itemData.invoice = invoice._id
+        console.log(`itemData.invoice`, itemData.invoice)
+
+        const savedItem = await saveItemInternal(invoice, itemData)
+        console.log(`savedItem`, savedItem)
+        console.log(`Successfully saved item to ${savedItem.invoice}`)
+
+        res.status(200).json(savedItem);
+    } catch (error) {
+        console.error('Error saving item', error)
+        res.status(500).json({ error: 'Failed to save' })
+    }
+};
 
 
-    // put?
-    // idea is save no data to DB until user saves note
-    // if (newNote)
-    //    ensure client
-    //    ensure invoice
-    // submit note (upsert - then you could use this when editing any saved Note, whether new or not)
-}
+// ------ Handles updating existing or inserting new item -------
+
+export const handleUpsertItem = async (req, res) => {
+    try {
+        console.log('New note, ensuring client then invoice before saving item')
+        const { invoiceData, itemData } = req.body
+
+        if (!invoiceData || !itemData) {
+            return res.status(400).json({ error: 'Missing required data' });
+        }
+
+        console.log(`ItemData:`, itemData)
+        console.log(`InvoiceData:`, invoiceData)
+
+        itemData.invoice = invoiceData._id
+        console.log(`itemData.invoice`, itemData.invoice)
+
+        const savedItem = await saveItemInternal(invoiceData, itemData)
+
+        console.log(`savedItem`, savedItem)
+
+        console.log(`Successfully saved item to ${savedItem.invoice}`)
+        res.status(200).json(savedItem);
+    } catch (error) {
+        console.error('Error saving item', error)
+        res.status(500).json({ error: 'Failed to save' })
+    }
+};
 
 
 

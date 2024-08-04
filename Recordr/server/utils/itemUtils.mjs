@@ -2,10 +2,16 @@ import Invoice from '../models/invoice.mjs'
 import Client from '../models/client.mjs'
 import Item from '../models/items.mjs'
 
-export const saveItem = async (invoice, itemData) => {
+export const saveItemInternal = async (invoiceData, itemData) => {
     try {
         console.log('Beginning to save items internally')
-        console.log('Invoice is', invoice)
+        const invoiceId = invoiceData._id
+        console.log('InvoiceId is', invoiceId)
+
+        const invoice = await Invoice.findById(invoiceId);
+        if (!invoice) {
+            throw new Error('Invoice not found');
+        }
         
         const newItem = new Item({
             date: itemData.date,

@@ -7,14 +7,28 @@ import { RenderInvoiceTotal } from '../bobs/RenderInvoiceTotal';
 
 const InvoiceView = ({ invoiceNumber, client, updatedInvoice, getClientInvoices, clients }) => {
 
+    // add functionality to show updated invoice
+
     return (
         <View style={styles.updatedInvoice}>
             <RecordButton />
             <GoToInvoicesButton />
             <Text style={styles.smallUpperSubheading}>{invoiceNumber}</Text>
             <Text style={styles.largeHeader}>{client}</Text>
-            <UpdatedInvoiceList updatedInvoice={updatedInvoice} />
-            <RenderInvoiceTotal />
+            <FlatList
+                style={styles.InvoiceListItems}
+                renderItem={({ item }) => (
+                    <View style={styles.InvoiceListItemsRow}>
+                        <CalendarIcon date={date} />
+                        <Text style={styles.InvoiceListItemsDetails}>{invoices.details}</Text> 
+                        <Text style={styles.InvoiceListItemsDetails}>{invoices.hours}</Text> 
+                        <TouchableOpacity style={style.editInvoicePencil} onPress={handleEditInvoice}>
+                            <PencilIcon />
+                        </TouchableOpacity>
+                    </View>
+                )}
+            />
+            <RenderTotalFooter />
             <TouchableOpacity style={styles.goToClient} onPress={getClientInvoices(clients)}>
                 <Text style={goToClientText}>Go to {clients}'s invoices</Text>
             </TouchableOpacity>
