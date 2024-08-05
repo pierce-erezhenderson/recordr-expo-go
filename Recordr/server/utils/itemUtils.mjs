@@ -1,6 +1,7 @@
 import Invoice from '../models/invoice.mjs'
 import Client from '../models/client.mjs'
 import Item from '../models/items.mjs'
+import { createNewInvoiceInternal } from './invoiceUtils.mjs';
 
 export const saveItemInternal = async (invoiceData, itemData) => {
     try {
@@ -45,82 +46,87 @@ export const prepareTranscription = async (transcription, clientList) => {
             const queryClientList = findClientNameInList(client, clientList);
             return !!queryClientList;
         };
+
         
-        if (invoice) {
-                const invoiceList = await Invoice.findOne({ invoice })
-                return !!invoiceList
+        const checkInvoice = async (invoice) => {
+            if (!invoice) {
+                return { existingInvoice: false, newInvoice: false }
+            } 
+            const listedInvoice = await Invoice.findOne({ invoice })
+            if (!listedInvoice) {
+                return { existingInvoice: false, newInvoice: true };
             }
+            return { existingInvoice: true, newInvoice: false }
+        }
+
+        const isClientMatch = clientMatch();
+        const { existingInvoice, newInvoice } = await checkInvoice();
+
 
         switch (true) {
-            case clientMatch:        
-                // If new client mentioned
+            case isClientMatch && !existingInvoice && !newInvoice:   
+                // User mentions existing client and no invoice
                 
-                invoiceData = { 
-                    clientName: client, 
-                    latestInvoice: "0001",
-                    clientList,
-                    newClient: true,
-                }
-                return { transcription, invoiceData }
-            
-            case invoiceMatch :                   
-                // User states new Invoice
-
                 clientInvoices = getInvoicesForNewNote(client)
                 latestInvoice =  clientInvoices[0]
                 invoiceData = {
                     clientName: client,
-                    invoice: invoice,
-                    clientInvoices,
-                    clientList,
-                    newClient: false,
-                }
-                return {invoiceData, }
-
-            case existingInvoice: 
-                // User states existing invoice
-
-                clientInvoices = getInvoicesForNewNote(client)
-                latestInvoice =  clientInvoices[0]
-                invoiceData = {
-                    clientName: client,
-                    invoice: invoice,
-                    clientInvoices,
-                    clientList,
-                    newClient: false,
-                }
-                return {invoiceData, }
-            default: 
-                const clientInvoices = getInvoicesForNewNote(client)
-                const latestInvoice =  clientInvoices[0]
-                const invoiceData = {
-                    clientName: client,
-                    invoice: latestInvoice,
+                    invoice: latestInvoice,  // Gets invoice user last used with client
                     clientInvoices: clientInvoices,
                     clientList: clientList,
                     newClient: false,
+                    newInvoice: false,
+                }
+                return { transcription, invoiceData }
+            
+            case isClientMatch && existingInvoice && !newInvoice:  
+                // User mentions existing client and existing invoiceNumber      
+                
+                clientInvoices = getInvoicesForNewNote(client)
+                latestInvoice =  clientInvoices[0]
+                invoiceData = {
+                    clientName: client,
+                    invoice: invoice,
+                    clientInvoices: clientInvoices,
+                    clientList: clientList,
+                    newClient: false,
+                    newInvoice: false,
+                }
+                return { transcription, invoiceData }
+            
+            case isClientMatch && !existingInvoice && newInvoice:                   
+                // User mentions existing Client with new invoiceNumber
+
+                clientInvoices = getInvoicesForNewNote(client)
+                latestInvoice =  clientInvoices[0]
+                invoiceData = {
+                    clientName: client,
+                    invoice: invoice,
+                    clientInvoices: clientInvoices,
+                    clientList: clientList,
+                    newClient: false,
+                    newInvoice: true,
+                }
+                return { transcription, invoiceData }
+
+            default: 
+                // User mentions new client (can't have existing invoice)
+
+                invoiceData = { 
+                    clientName: client, 
+                    invoice: "0001",
+                    clientList: clientList,
+                    newClient: true,
+                    newInvoice: true,
                 }
                 return { transcription, invoiceData }
         }
-
-        if (!clientMatch) {
-
-        } else if (newInvoice) {
-
-        } else {
-
-        }
-
-        // need functionality to handle if user says it's a new invoice
-
-
-
-
     } catch (error) {
         console.error('Unable to prepare transcription', error.message)
         throw error
     }
 };
+
 
 // ------ Find Name in List -------
 

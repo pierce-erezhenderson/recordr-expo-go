@@ -4,8 +4,7 @@ import {
     getClient,
     createNewClient,
     // updateClient,
-    // getClientInvoices,
-    handleClientInvoicesForNewNote,
+    getAllClientInvoices,
     updateInvoiceByClient,
     updateClient,
 } from '../controllers/clientController.mjs';

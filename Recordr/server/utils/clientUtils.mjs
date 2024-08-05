@@ -28,7 +28,7 @@ export const getClientInternal = async (client) => {
 
 // ------ Get all clients ------
 
-export const getAllClients = async () => {
+export const getAllClientsInternal = async () => {
     try {
         const clientList = await Client.find({}, { clientName: 1 });
 
