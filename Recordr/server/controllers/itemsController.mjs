@@ -2,7 +2,7 @@ import { speechToText } from '../utils/apiGoogleSTT.mjs';
 import { openAICompletion } from '../utils/apiOpenAI.mjs';
 import Invoice from '../models/invoice.mjs';    // DO I NEED THIS ?
 import Record from '../models/items.mjs';       // DO I NEED THIS ?
-import { createNewClientInternal } from '../utils/clientUtils.mjs'
+import { createNewClientInternal, getClientInternal } from '../utils/clientUtils.mjs'
 import { createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
 import { saveItemInternal } from '../utils/itemUtils.mjs'
 
@@ -24,11 +24,17 @@ export const generateRecordrNote = async (req, res) => {
         // Step 1 -- Google STT
         const fullAudio = Buffer.concat(audioChunks);
         console.log('Full audio length:', fullAudio.length);
+
         const transcription = await speechToText(fullAudio);
         console.log('Transcription:', transcription);
 
-        // Step 2 -- OpenAI completion
-        const response = await openAICompletion(transcription);
+        // Step 2 -- Get clients
+
+        const clientList = await getAllClients();
+        const clientNamesList = clientList.map(({ clientName }) => ({ clientName }));
+        
+        // Step 3 -- OpenAI completion
+        const response = await openAICompletion(transcription, clientNamesList);
         console.log ('Response:', response);
 
         // // Step 3 -- Internal check (client and invoice number)

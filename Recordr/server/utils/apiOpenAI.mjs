@@ -7,7 +7,7 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function openAICompletion(transcription) {
+export async function openAICompletion(transcription, clientNamesList) {
     try{
         const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
         const chatCompletion = await openai.chat.completions.create({
@@ -21,12 +21,17 @@ export async function openAICompletion(transcription) {
                         client: "Client Name",
                         details: "Task details"
 
+                    The current time is ${currentDate}. Unless it is obvious or noted by the user that the invoice note is documenting before 2024, please default to 2024. If "yesterday" is mentioned, assume it is one day before the current date.
+
+                    Please check against this list of clients before writing the client name. For example, if there exists a client in the list called "Diane and Andy" and a user only mentions "Andy", you should bias towards the existing name (Diane and Andy) rather than generating a new name (Andy).
+
+                    Client list: ${clientNamesList}
+                    
                     Clients may be individuals or companies. If no client provided, return the following for the client key:
                     
                         client: ""
-
-                    The time now is ${currentDate}. Unless it is obvious or noted by the user that the invoice note is documenting before 2024, please default to 2024. If "yesterday" is mentioned, assume it is the day before the current date.
-                    Details should be a brief description of the task, please do not include articles (e.g. "the", "a", "an") or first-person pronouns (e.g. "I", "me"). You should always use commas to separate details. If a location is mentioned, always mention it first in the details.
+                    
+                    Details should be a robust, professional, and accurate interpretation of the transcript. Details must be client-facing. If a location is mentioned, always mention it first in the details.
                     
                     Ensure the JSON is correctly structured and includes all necessary information without any additional characters or variations.`
                 },

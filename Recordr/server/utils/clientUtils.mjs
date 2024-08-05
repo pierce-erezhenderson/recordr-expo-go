@@ -25,6 +25,26 @@ export const getClientInternal = async (client) => {
     }
 };
 
+
+// ------ Get all clients ------
+
+export const getAllClients = async () => {
+    try {
+        const clientList = await Client.find({}, { clientName: 1 });
+
+        if (!clientList) {
+            console.log('No clients found')
+            return null;
+        }
+
+        console.log('Clients found, returning:', clientList)
+        return clientList;
+    } catch (error) {
+        console.error('Error getting client', error)
+        throw error;
+    }
+};
+
 export const getClientInvoicesInternal = async (clientName) => {
     try {
         const clientInvoices = await Client.findOne(clientName).populate('invoices')
