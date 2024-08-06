@@ -4,7 +4,12 @@ import { syncInvoiceIndexes } from '../models/invoice.mjs';
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 30000,
+            connectTimeoutMS: 30000
+        });
         console.log('Connected to MongoDB');
 
         await syncInvoiceIndexes();
@@ -12,7 +17,7 @@ const connectDB = async () => {
 
         { les get it } ----------- Beginning server console here ----------- { ᕦ(ò_óˇ)ᕤ }
 
-        
+
 
         `)
     } catch (error) {

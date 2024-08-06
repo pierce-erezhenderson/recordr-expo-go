@@ -4,7 +4,7 @@ import Invoice from '../models/invoice.mjs';    // DO I NEED THIS ?
 import Record from '../models/items.mjs';       // DO I NEED THIS ?
 import { createNewClientInternal, getClientInternal } from '../utils/clientUtils.mjs'
 import { createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
-import { saveItemInternal } from '../utils/itemUtils.mjs'
+import { prepareTranscription, saveItemInternal } from '../utils/itemUtils.mjs'
 
 
 let audioChunks = [];
@@ -28,19 +28,20 @@ export const generateRecordrNote = async (req, res) => {
         const transcription = await speechToText(fullAudio);
         console.log('Transcription:', transcription);
 
-        // Step 2 -- Get clients
-
+        // Step 2 -- Get clients (preliminary)
         const clientList = await getAllClients();
+        console.log('clientList:', clientList)
         const clientNamesList = clientList.map(({ clientName }) => ({ clientName }));
+        console.log('clientNamesList:', clientNamesList)
         
         // Step 3 -- OpenAI completion
-        const response = await openAICompletion(transcription, clientNamesList);
-        console.log ('Response:', response);
+        const completion = await openAICompletion(transcription, clientNamesList);
+        console.log ('Completion:', response);
 
-        // // Step 3 -- Internal check (client and invoice number)
-        // const clientCheck = response.client // need to figure out graceful way to handle errors
-        // const 
-        // ******* this could probably become 
+        // Step 4 -- Prepare invoiceData
+        const response = await prepareTranscription(completion)
+        console.log('Response:', response)
+
 
         audioChunks = [];
             

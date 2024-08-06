@@ -1,7 +1,9 @@
 import Invoice from '../models/invoice.mjs'
 import Client from '../models/client.mjs'
 import Item from '../models/items.mjs'
-import { createNewInvoiceInternal } from './invoiceUtils.mjs';
+import { createNewInvoiceInternal} from './invoiceUtils.mjs';
+import { getLatestClientInvoiceInternal } from './clientUtils.mjs'
+import connectDB from '../config/database.mjs';
 
 export const saveItemInternal = async (invoiceData, itemData) => {
     try {
@@ -40,17 +42,23 @@ export const saveItemInternal = async (invoiceData, itemData) => {
 
 export const prepareTranscription = async (transcription, clientList) => {
     try {
-        const client = transcription.clientName;
+        connectDB();
+        const clientName = transcription.clientName;
         const invoice = transcription.invoice
         const clientMatch = () => {
-            const queryClientList = findClientNameInList(client, clientList);
+            const queryClientList = findClientNameInList(clientName, clientList);
             return !!queryClientList;
         };
 
+        console.log('Client', clientName)
+
+        let clientInvoices, clientLatestInvoice, invoiceData
         
         const checkInvoice = async (invoice) => {
+            console.log('Checking invoices')
             if (!invoice) {
                 return { existingInvoice: false, newInvoice: false }
+                console.log('Checked invoices, none received')
             } 
             const listedInvoice = await Invoice.findOne({ invoice })
             if (!listedInvoice) {
@@ -66,12 +74,30 @@ export const prepareTranscription = async (transcription, clientList) => {
         switch (true) {
             case isClientMatch && !existingInvoice && !newInvoice:   
                 // User mentions existing client and no invoice
+                console.log('Beginning to generate response')
+
+
                 
-                clientInvoices = getInvoicesForNewNote(client)
-                latestInvoice =  clientInvoices[0]
+                const result = await getLatestClientInvoiceInternal(clientName);
+
+                if (result.error) {
+                    console.error('Error fetching client invoices:', result.error);
+                    // Handle the error appropriately
+                    break;
+                }
+
+                const { client, latestInvoice } = result;
+
+                console.log('Client:', client);
+                console.log('Latest Invoice:', latestInvoice);
+                
+                // If you need to assign to clientInvoices, you can do so here
+                clientInvoices = { client, latestInvoice };
+
+                clientLatestInvoice =  clientInvoices.latestInvoice
                 invoiceData = {
                     clientName: client,
-                    invoice: latestInvoice,  // Gets invoice user last used with client
+                    invoice: clientLatestInvoice,  // Gets invoice user last used with client
                     clientInvoices: clientInvoices,
                     clientList: clientList,
                     newClient: false,
@@ -82,7 +108,7 @@ export const prepareTranscription = async (transcription, clientList) => {
             case isClientMatch && existingInvoice && !newInvoice:  
                 // User mentions existing client and existing invoiceNumber      
                 
-                clientInvoices = getInvoicesForNewNote(client)
+                clientInvoices = await getLatestClientInvoiceInternal(client)
                 latestInvoice =  clientInvoices[0]
                 invoiceData = {
                     clientName: client,
@@ -97,7 +123,7 @@ export const prepareTranscription = async (transcription, clientList) => {
             case isClientMatch && !existingInvoice && newInvoice:                   
                 // User mentions existing Client with new invoiceNumber
 
-                clientInvoices = getInvoicesForNewNote(client)
+                clientInvoices = await getLatestClientInvoiceInternal(client)
                 latestInvoice =  clientInvoices[0]
                 invoiceData = {
                     clientName: client,
@@ -122,7 +148,7 @@ export const prepareTranscription = async (transcription, clientList) => {
                 return { transcription, invoiceData }
         }
     } catch (error) {
-        console.error('Unable to prepare transcription', error.message)
+        console.error('Unable to prepare transcription,', error.message)
         throw error
     }
 };

@@ -10,8 +10,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import RecognizeScreen from './screens/RecognizeScreen.jsx';
 
 // UIs
-import SignInScreen from './components/UI/SignInUI';
-import SignUpScreen from './components/UI/SignUpUI';
+import SignInScreen from './components/views/SignInView';
+import SignUpScreen from './components/views/SignUpView';
 
 // Contexts
 import { RecognizeProvider } from "./utils/RecognizeContext.jsx";

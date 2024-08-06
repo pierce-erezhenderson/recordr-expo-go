@@ -50,7 +50,7 @@ const manualTestForHandleNewItemCreateInvoice = async () => {
 
 const manualTestForHandleNewItemCreateClient = async () => {
     const invoiceData = {
-        "clientName": "U2.6", 
+        "clientName": "U2.7", 
         "newInvoiceNumber": "0001"
     };
     const itemData = { 
@@ -104,14 +104,14 @@ const addItem = async (invoiceData, itemData) => {
 };
 
 
-// manualTestForHandleUpsertItem()
-//     .then(result => console.log('Test completed successfully:', result))
-//     .catch(error => console.error('Test failed:', error));
+manualTestForHandleUpsertItem()
+    .then(result => console.log('Test completed successfully:', result))
+    .catch(error => console.error('Test failed:', error));
 
 // manualTestForHandleNewItemCreateInvoice()
 //     .then(result => console.log('Test completed successfully:', result))
 //     .catch(error => console.error('Test failed:', error));
 
-manualTestForHandleNewItemCreateClient()
-    .then(result => console.log('Test completed successfully:', result))
-    .catch(error => console.error('Test failed:', error));
+// manualTestForHandleNewItemCreateClient()
+//     .then(result => console.log('Test completed successfully:', result))
+//     .catch(error => console.error('Test failed:', error));

@@ -13,6 +13,7 @@ const useSpeechRecognition = () => {
         // hours: '2',
         // details: 'worked in garden',
     });
+    const [invoiceData, setInvoiceData] = useState()
     const [isProcessing, setIsProcessing] = useState(false);
     const [serverResponse, setServerResponse] = useState(false);
 
@@ -39,7 +40,7 @@ const useSpeechRecognition = () => {
     const stopRecording = async () => {
         console.log('Stopping recording...');
         setRecording(undefined);
-        
+
         await recording.stopAndUnloadAsync();
 
         const uri = recording.getURI();
@@ -98,8 +99,10 @@ const useSpeechRecognition = () => {
         startRecording,
         stopRecording,
         isRecording: Boolean(recording),
-        setTranscription,
         transcription,
+        setTranscription,
+        invoiceData,
+        setInvoiceData,
         serverResponse,
         setServerResponse,
         isProcessing,

@@ -30,6 +30,7 @@ export const getClientInternal = async (client) => {
 
 export const getAllClientsInternal = async () => {
     try {
+        console.log('Initiating getAllClientsInternal')
         const clientList = await Client.find({}, { clientName: 1 });
 
         if (!clientList) {
@@ -75,28 +76,28 @@ export const createNewClientInternal = async (clientName) => {
 export const getLatestClientInvoiceInternal = async (clientName) => {
     console.log('clientId:', clientName)
     try {
-        const clientDoc = await Client.findOne({ client: clientName }).populate('invoices')
+        const clientDoc = await Client.findOne({ clientName: clientName }).populate('invoices');
         
         if (!clientDoc) {
-            console.log( `No client found named ${clientName}` )
-            return { existingClient: null, latestInvoice: null };
+            console.log(`No client found named ${clientName}`);
+            return { client: null, latestInvoice: null };
         }
         
-        console.log("ClientDoc:", clientDoc)
+        console.log("ClientDoc:", clientDoc);
 
         if (!clientDoc.invoices || clientDoc.invoices.length === 0) {
-            console.log("Client has no invoices")
-            return { existingClient: clientDoc, latestInvoice: null };
+            console.log("Client has no invoices");
+            return { client: clientDoc, latestInvoice: null };
         }
 
         const latestInvoice = await Invoice.findOne(
-            { _id: { $in: clientDoc.invoices.map(invoices => invoices._id) } },
+            { _id: { $in: clientDoc.invoices.map(invoice => invoice._id) } },
             {},
             { sort: { updatedAt: -1 } }
-        )
+        );
 
-        console.log("Lastest invoice:", latestInvoice);
-        return { existingClient: clientDoc, latestInvoice };
+        console.log("Latest invoice:", latestInvoice);
+        return { client: clientDoc, latestInvoice };
     } catch (error) {
         console.error('Error getting latest invoice by client', error)
         throw error

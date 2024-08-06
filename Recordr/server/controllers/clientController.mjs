@@ -9,6 +9,7 @@ import {
     getClientInvoicesInternal,
     // ensureClientAndCreateInvoice,
     updateClientInternal,
+    getAllClientsInternal,
 } from '../utils/clientUtils.mjs';
 
 
@@ -63,6 +64,22 @@ export const getAllClientInvoices = async (req, res) => {
     res.status(statusCode).json({message, invoices});
     return { invoices, statusCode, message };
 };
+
+
+// ----- Get all clients ------
+
+export const getAllClients = async (req, res) => {
+    try {
+        const clientList = await getAllClientsInternal();
+        if (!clientList) {
+            return res.status(400).json({ message: 'No clients found'})
+        }
+        res.status(200).json(clientList)
+    } catch (error) {
+        console.error('Error fetching clients', error)
+        res.status(500).json({ message: error.message })
+    }
+}
 
 
 // ----- Create new 'client' ------

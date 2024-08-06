@@ -4,7 +4,7 @@ import { useRecognize } from "../../utils/RecognizeContext.jsx";
 import { useSuccess } from "../../utils/SuccessContext.jsx";
 import { useLoading } from "../../utils/LoadingContext.jsx";
 import useRecordr from '../../hooks/useRecordr.jsx';
-import submitNewNote from '../../services/invoiceAPI';
+// import submitNewNote from '../../services/invoiceAPI';
 import StarterView from '../views/StarterView.jsx';
 import RecognizeView from '../views/RecognizeView.jsx';
 import TranscriptionView from '../views/TranscriptionView.jsx';
@@ -24,12 +24,15 @@ const Recordr = () => {
         setTranscription, 
         serverResponse,
         setServerResponse,
-        cancelRecording
+        cancelRecording,
+        invoiceData,
+        setInvoiceData,
     } = useRecordr();
-    const {
-        clients, 
-        setClients
-    } = useInvoices();
+    // const {
+    //     clients, 
+    //     setClients
+    // } = useInvoices();
+
 
     const handleSetLoading = (isLoading) => {
         setLoading(isLoading);
@@ -57,7 +60,7 @@ const Recordr = () => {
         setError(null);
         try {
             const data = await fetchClientInvoices();
-            setClients(data);
+            setInvoiceData(data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -99,7 +102,7 @@ const Recordr = () => {
                 handleRedo={handleRedo}
                 setTranscription={setTranscription}
                 submitTranscription={submitTranscription}
-                clients={clients}
+                invoiceData={invoiceData}
             />;
             case recognize: return <RecognizeView
                 recognize={recognize} 

@@ -27,6 +27,14 @@ app.use('/api', clientRoutes)
 app.use('/api', invoiceRoutes);
 app.use('/api', recordrRoutes);
 
+// const clientUtils = await import ('./utils/clientUtils.mjs');
+// const invoiceUtils = await import ('./utils/invoiceUtils.mjs');
+// const itemUtils = await import('./utils/itemUtils.mjs');
+
+// app.use('/internal/clients', clientUtils)
+// app.use('/internal/clients', invoiceUtils)
+// app.use('/internal/clients', itemUtils)
+
 app.use((req, res, next) => {
   console.log(`Received ${req.method} request to ${req.url}`);
   console.log('Request headers:', req.headers);
