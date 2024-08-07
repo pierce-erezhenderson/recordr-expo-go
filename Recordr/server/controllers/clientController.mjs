@@ -47,9 +47,11 @@ export const getAllClientInvoices = async (req, res) => {
     // note on above ^ front end handles '0001' invoice number, gets returned to backend when user saves
     
     try {
-        const { latestInvoice } = await getLatestClientInvoiceInternal(clientName);
+        const { latestInvoice } = await getLatestClientInvoiceInternal(clientName, clientInvoices);
+        console.log('latestInvoice:', latestInvoice)
         const otherInvoices = clientInvoices.filter(invoice => invoice.id !== latestInvoice.id);
-        
+        console.log('otherInvoices:', otherInvoices)
+
         invoices = {
             latestInvoice,
             otherInvoices

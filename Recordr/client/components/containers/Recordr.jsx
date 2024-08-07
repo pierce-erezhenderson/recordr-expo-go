@@ -38,11 +38,11 @@ const Recordr = () => {
         setLoading(isLoading);
     };
 
-    const updateInvoice = useCallback(async (transcription) => {
-        handleSetLoading(true);
-        await submitNewNote(transcription);
-        handleSetLoading(false);
-    }, [handleSetLoading, submitTranscription]);
+    // const updateInvoice = useCallback(async (transcription) => {
+    //     handleSetLoading(true);
+    //     await submitNewNote(transcription);
+    //     handleSetLoading(false);
+    // }, [handleSetLoading, submitTranscription]);
 
     const handleRedo = useCallback(() => {
         handleSetLoading(true);
@@ -101,7 +101,7 @@ const Recordr = () => {
                 updateInvoice={updateInvoice}
                 handleRedo={handleRedo}
                 setTranscription={setTranscription}
-                submitTranscription={submitTranscription}
+                // submitTranscription={submitTranscription}
                 invoiceData={invoiceData}
             />;
             case recognize: return <RecognizeView
@@ -121,7 +121,7 @@ const Recordr = () => {
     return (
         <View style={[ styles.recordrContainer, { backgroundColor: getBackgroundColor() } ]}>
             {getRecordrUI()}
-            {submitError && <Text style={styles.errorText}>{submitError}</Text>}
+            {/* {submitError && <Text style={styles.errorText}>{submitError}</Text>} */}
         </View>
     ); 
 };

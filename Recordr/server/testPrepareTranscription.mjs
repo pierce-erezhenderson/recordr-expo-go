@@ -1,4 +1,4 @@
-import { prepareTranscription } from './utils/itemUtils.mjs'
+import { prepareTranscription } from './utils/prepareTranscription.mjs'
 import { getAllClientsInternal } from './utils/clientUtils.mjs';
 
 const manualTestForPrepareTranscription = async () => {
@@ -8,7 +8,8 @@ const manualTestForPrepareTranscription = async () => {
         "date": "2024-10-23", 
         "hours": "3.25", 
         "details": "Installed new light fixtures in living room and hallway", 
-        "invoice": "" 
+        "newInvoice": "",
+        "invoiceNumber": "9002" 
     }
     console.log('Loading clientList, executing getAllClients')
     // const clientList = await getAllClientsInternal(transcription.clientName);

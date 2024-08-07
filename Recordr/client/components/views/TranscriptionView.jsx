@@ -43,7 +43,7 @@ const InputWithIcon = memo(({
 
 // ----- TranscriptionUI component -----
 
-const TranscriptionView = memo(({ setTranscription, transcription, updateInvoice, handleRedo, submitTranscription }) => {
+const TranscriptionView = memo(({ setTranscription, transcription, updateInvoice, handleRedo }) => {
     console.log('TranscriptionView rendered'); // Debug log
 
     const [tempTranscription, setTempTranscription] = useState(transcription);

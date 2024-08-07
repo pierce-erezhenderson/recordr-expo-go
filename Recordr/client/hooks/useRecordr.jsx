@@ -67,7 +67,9 @@ const useSpeechRecognition = () => {
           encoding: FileSystem.EncodingType.Base64,
         });
         
-        const response = await fetch(`${API_URL}/api/generateRecordrNote`, {
+        console.log('Attemping to send api call')
+
+        const response = await fetch(`http://localhost:3000/api/generateRecordrNote`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

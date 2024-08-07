@@ -74,35 +74,49 @@ export const createNewClientInternal = async (clientName) => {
 // ------ Get ** latest ** 'invoice' by 'client' ------
 
 export const getLatestClientInvoiceInternal = async (clientName) => {
-    console.log('clientId:', clientName)
     try {
-        const clientDoc = await Client.findOne({ clientName: clientName }).populate('invoices');
-        
-        if (!clientDoc) {
-            console.log(`No client found named ${clientName}`);
-            return { client: null, latestInvoice: null };
-        }
-        
-        console.log("ClientDoc:", clientDoc);
-
-        if (!clientDoc.invoices || clientDoc.invoices.length === 0) {
-            console.log("Client has no invoices");
-            return { client: clientDoc, latestInvoice: null };
+        const client = await getClientWithInvoices(clientName);
+        if (!client) {
+            return { client: null, latestInvoice: null, otherInvoices: [] };
         }
 
-        const latestInvoice = await Invoice.findOne(
-            { _id: { $in: clientDoc.invoices.map(invoice => invoice._id) } },
-            {},
-            { sort: { updatedAt: -1 } }
-        );
+        const { latestInvoice, otherInvoices } = await getInvoicesForClient(client);
 
-        console.log("Latest invoice:", latestInvoice);
-        return { client: clientDoc, latestInvoice };
+        return { client, latestInvoice, otherInvoices };
     } catch (error) {
-        console.error('Error getting latest invoice by client', error)
-        throw error
+        console.error('Error getting latest invoice by client:', error);
+        throw error;
     }
 };
+
+const getClientWithInvoices = async (clientName) => {
+    return await Client.findOne({ clientName }).populate('invoices');
+};
+
+
+
+
+
+// --------- getInvoicesForClient -----------
+
+const getInvoicesForClient = async (client) => {
+    const clientInvoices = client.invoices || [];
+
+    if (clientInvoices.length === 0) {
+        return { latestInvoice: null, otherInvoices: [] };
+    }
+
+    const latestInvoice = await Invoice.findOne(
+        { _id: { $in: clientInvoices.map(invoice => invoice._id) } },
+        {},
+        { sort: { updatedAt: -1 } }
+    );
+
+    const otherInvoices = clientInvoices.filter(invoice => invoice.id !== latestInvoice.id);
+
+    return { latestInvoice, otherInvoices };
+};
+
 
 
 // ------- Ensure 'client' (get or create) --------
@@ -182,3 +196,58 @@ export const updateClientInternal = async (_id, newClientName) => {
 //         throw error
 //     }
 // };
+
+
+
+
+
+//****************** confusing code in get latest invoice, not sure why I need to gate, feels old and unmodular*/
+        // const clientDoc = await Client.findOne({ clientName: clientName }).populate('invoices');
+        
+        // if (!clientDoc) {
+        //     console.log(`No client found named ${clientName}`);
+        //     return { client: null, latestInvoice: null };
+        // }
+        
+        // console.log("ClientDoc:", clientDoc);
+
+        // if (!clientDoc.invoices || clientDoc.invoices.length === 0) {
+        //     console.log("Client has no invoices");
+        //     return { client: clientDoc, latestInvoice: null };
+        // }
+
+
+
+        // export const getLatestClientInvoiceInternal = async (clientName, clientInvoices) => {
+        //     console.log('clientId:', clientName)
+        //     try {
+        
+        //         const clientDoc = await Client.findOne({ clientName: clientName }).populate('invoices');
+        //         const clientInvoices = clientDoc ? clientDoc.invoices : [];
+        //         console.log('clientInvoices:', clientInvoices)
+        
+        //         if (!clientInvoices || clientInvoices.length === 0) {
+        //             console.log("Client has no invoices");
+        //             return { client: clientDoc, latestInvoice: null };
+        //         }
+        
+        //         console.log('clientInvoices:', clientInvoices)
+        //         console.log(typeof clientInvoices);
+        //         console.log(Array.isArray(clientInvoices));
+        
+        //         const latestInvoice = await Invoice.findOne(
+        //             { _id: { $in: clientInvoices.map(invoice => invoice._id) } },
+        //             {},
+        //             { sort: { updatedAt: -1 } }
+        //         );
+        
+        //         const otherInvoices = clientInvoices.filter(invoice => invoice.id !== latestInvoice.id);
+                
+        //         console.log('otherInvoices:', otherInvoices)
+        //         console.log("Latest invoice:", latestInvoice);
+        //         return { client: clientDoc, latestInvoice, otherInvoices };
+        //     } catch (error) {
+        //         console.error('Error getting latest invoice by client', error)
+        //         throw error
+        //     }
+        // };

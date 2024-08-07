@@ -1,16 +1,18 @@
-import { speechToText } from '../utils/apiGoogleSTT.mjs';
-import { openAICompletion } from '../utils/apiOpenAI.mjs';
+import { speechToText } from '../utils/googleSTT.mjs';
+import { openAICompletion } from '../utils/openAI.mjs'
 import Invoice from '../models/invoice.mjs';    // DO I NEED THIS ?
 import Record from '../models/items.mjs';       // DO I NEED THIS ?
 import { createNewClientInternal, getClientInternal } from '../utils/clientUtils.mjs'
 import { createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
-import { prepareTranscription, saveItemInternal } from '../utils/itemUtils.mjs'
+import { saveItemInternal } from '../utils/itemUtils.mjs'
+import { prepareTranscription } from '../utils/prepareTranscription.mjs'
 
 
 let audioChunks = [];
 
 export const generateRecordrNote = async (req, res) => {
     try {
+        console.log('Preparing to generate note')
         const { audio, isLastChunk } = req.body;
         
         if (!audio) {
