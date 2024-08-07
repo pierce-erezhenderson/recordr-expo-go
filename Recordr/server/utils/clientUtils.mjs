@@ -93,12 +93,6 @@ const getClientWithInvoices = async (clientName) => {
     return await Client.findOne({ clientName }).populate('invoices');
 };
 
-
-
-
-
-// --------- getInvoicesForClient -----------
-
 const getInvoicesForClient = async (client) => {
     const clientInvoices = client.invoices || [];
 
@@ -114,8 +108,10 @@ const getInvoicesForClient = async (client) => {
 
     const otherInvoices = clientInvoices.filter(invoice => invoice.id !== latestInvoice.id);
 
-    return { latestInvoice, otherInvoices };
+    return { latestInvoice, otherInvoices, clientInvoices };
 };
+
+
 
 
 

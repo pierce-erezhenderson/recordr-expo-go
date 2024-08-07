@@ -23,7 +23,7 @@ export const prepareTranscription = async (transcription, clientList) => {
         const invoiceStatus = await checkInvoice(invoiceNumber, newInvoice);
 
         console.log('About to call getClientData, invoiceStatus:', invoiceStatus)
-        const clientData = await getClientData(invoiceStatus, clientName, invoiceNumber, clientList, isClientMatch)
+        const clientData = await getClientData(clientName, invoiceNumber, clientList, isClientMatch)
 
         return { transcription, invoiceData: clientData };
 
@@ -43,38 +43,47 @@ const checkInvoice = async (invoiceNumber, newInvoice) => {
 
     if (newInvoice) {
         console.log('User requested new invoice')
-        if (invoiceNumber) {
-            console.log('User request new invoice and provided number')
-            return { existingInvoice: false, newInvoice: true, invoiceNumber: invoiceNumber }
-        }
-        console.log("User didn't provide new invoiceNumber")
-        return { existingInvoice: false, newInvoice: true, invoiceNumber: "0001" }
-    } 
+        return {
+            existingInvoice: false,
+            newInvoice: true,
+            invoiceNumber: invoiceNumber || "0001"
+        };
+    }
     const listedInvoice = await Invoice.findOne({ invoiceNumber })
     return {
         existingInvoice: !!listedInvoice,
-        newInvoice: false
+        newInvoice: false,
+        invoiceNumber: invoiceNumber
     };
 };
 
-const getClientData = async (invoiceStatus, clientName, invoiceNumber, clientList, isClientMatch) => {
-
-    console.log('Beginning getClientData')
-    console.log('invoiceStatus:', invoiceStatus)
-    console.log('invoiceStatus.existingInvoice:', invoiceStatus.existingInvoice)
+const getClientData = async (clientName, invoiceNumber, clientList, isClientMatch) => {
     if (isClientMatch) {
         const { latestInvoice, otherInvoices } = await getLatestClientInvoiceInternal(clientName);
+        const invoiceExists = otherInvoices.some(invoice => invoice.invoiceNumber === invoiceNumber);
+        const invoiceStatus = {
+            existingInvoice: invoiceExists,
+            newInvoiceNumber: !invoiceExists && invoiceNumber !== latestInvoice.invoiceNumber
+        }
+        const requestedInvoiceNumber = invoiceStatus.existingInvoice || invoiceStatus.newInvoice
+            ? invoiceNumber
+            : latestInvoice.invoiceNumber;
 
         if (invoiceStatus.existingInvoice) {
-            return createInvoiceData(clientName, invoiceNumber, otherInvoices, clientList, false, false);
+            // Mentioned client exists, invoice exists
+            return createInvoiceData(clientName, requestedInvoiceNumber, otherInvoices, clientList, false, false);
         } else if (invoiceStatus.newInvoice) {
-            return createInvoiceData(clientName, invoiceNumber, otherInvoices, clientList, false, true);
+            // Mentioned client exists, requested new invoice || mentioned new invoiceNumber 
+            return createInvoiceData(clientName, requestedInvoiceNumber, otherInvoices, clientList, false, true);
         } else {
-            return createInvoiceData(clientName, latestInvoice.invoiceNumber, otherInvoices, clientList, false, true);
+            // Mentioned client exists, didn't mention anything about invoice
+            return createInvoiceData(clientName, latestInvoice.invoiceNumber, otherInvoices, clientList, false, false);
         }
     } else if (invoiceNumber) {
+            // Mentioned client doesn't exist, mentioned an invoiceNumber
         return createInvoiceData(clientName, invoiceNumber, [], clientList, false, false);
     } else {
+            // Mentioned client doesn't exist, didn't mention anything about invoice
         return createInvoiceData(clientName, "0001", [], clientList, true, true);
     }
 };
