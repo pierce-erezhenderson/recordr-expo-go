@@ -7,6 +7,7 @@ const clientSchema = new Schema({
         required: true,
         unique: true,
     },
+    clientNameInsensitive:
     invoices: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Invoice',

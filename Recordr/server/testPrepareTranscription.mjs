@@ -4,11 +4,10 @@ import { getAllClientsInternal } from './utils/clientUtils.mjs';
 const manualTestForPrepareTranscription = async () => {
     console.log('Loading transcription')
     const transcription = {
-        "clientName": "WIFE",
+        "clientName": "Wife",
         "date": "2024-10-23", 
         "hours": "3.25", 
-        "details": "Installed new light fixtures in living room and hallway", 
-        "newInvoice": "",
+        "details": "Installed new light fixtures in living room and hallway",
         "invoiceNumber": "" 
     }
     console.log('Loading clientList, executing getAllClients')
