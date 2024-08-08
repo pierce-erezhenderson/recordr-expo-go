@@ -130,14 +130,53 @@ export const ensureClient = async (clientName) => {
     } 
 };
 
-export const updateClientInternal = async (_id, newClientName) => {
+export const updateClientInternal = async (_id, newClientName, currentClientId = null) => {
+
+    // WIP!
+    
     try {
-        const updatedClient = await Client.findOneAndUpdate(
-            { _id },
-            { clientName: newClientName },
-            { new: true },
-        );
-        return { updatedClient };
+        const normalizedClientName = newClientName.toLowerCase();
+
+        // Find any client with this normalized name
+        const checkClientNameAvailability = async () => {
+            const existingClient = await Client.findOne({ normalizedClientName });
+
+                if (existingClient) {
+                    if (currentClientId && existingClient._id.toString() === currentClientId.toString()) {
+                        // This is the same client, just changing the case
+                        return {
+                            isAvailable: true,
+                            normalizedName: normalizedClientName,
+                            isCaseChange: existingClient.clientName !== clientName,
+                            existingClient: existingClient
+                        };
+                    } else {
+                        // Another client with this name exists
+                        return {
+                            isAvailable: false,
+                            normalizedName: normalizedClientName,
+                            existingClient: existingClient
+                        };
+                    }
+                }
+
+                // Name is completely new
+                return {
+                    isAvailable: true,
+                    normalizedName: normalizedClientName,
+                    isCaseChange: false,
+                    existingClient: null
+                };
+            };
+
+        if (checkClientNameAvailability.isAvailable) {
+            const updatedClient = await Client.findOneAndUpdate(
+                { _id },
+                { clientName: newClientName },
+                { new: true },
+            );
+            return { updatedClient };
+        }
     } catch (error) {
         console.error('Could not update ClientName')
         throw error

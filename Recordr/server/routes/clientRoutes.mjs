@@ -14,13 +14,12 @@ const router = express.Router();
 
 // router.get('/client', getAllClients);   // to create
 router.post('/client', createNewClient);
-router.put('/client', updateClient);
 router.get('/client', getAllClients)
 
 router.get('/client/:id', getClient);
-router.put('/client/:id', updateInvoiceByClient);   // is there a more sophiscated way to do address?
+router.put('/client/:id', updateClient);
 
-// router.get('/client/invoices', getClientInvoices);
+router.put('/client/invoice/:id', updateInvoiceByClient);   // is there a more sophiscated way to do address?
 router.get('/client/invoice/:id', getAllClientInvoices);
 
 

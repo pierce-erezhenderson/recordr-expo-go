@@ -1,8 +1,8 @@
 import { createNewInvoiceInternal} from './invoiceUtils.mjs';
 import { getLatestClientInvoiceInternal } from './clientUtils.mjs'
 import connectDB from '../config/database.mjs';
-import Client from '../models/client.mjs';
 import Invoice from '../models/invoice.mjs'
+import Client from '../models/client.mjs'
 import { createNewInvoiceWithNumber } from '../controllers/invoiceController.mjs';
 
 
@@ -14,16 +14,17 @@ export const prepareTranscription = async (transcription, clientList) => {
     await connectDB();
 
     try {
-        const { clientName, newInvoice } = transcription;
-        let { invoiceNumber } = transcription;
+        const { clientName } = transcription;
+        let { invoiceNumber, newInvoice } = transcription;
     
         console.log('clientName:', clientName, 'clientList:', clientList);
 
-        const isClientMatch = findClientNameInList(clientName, clientList);
+        const clientStatus = await checkClientNameAvailability(clientName);
         const invoiceStatus = await checkInvoice(invoiceNumber, newInvoice);
 
         console.log('About to call getClientData, invoiceStatus:', invoiceStatus)
-        const clientData = await getClientData(invoiceStatus, clientName, clientList, isClientMatch)
+        const clientData = await getClientData(invoiceStatus, clientName, clientList, clientStatus)
+
         console.log('transcription within createUpdatedTranscription:', transcription)
         const updatedTranscription = createUpdatedTranscription(transcription) // WORKING ON FINALIZING THIS -- PEEL OUT NECESSARY INFO
 
@@ -36,14 +37,33 @@ export const prepareTranscription = async (transcription, clientList) => {
     }
 };
 
+const checkClientNameAvailability = async (clientName) => {
+    const normalizedClientName = clientName.toLowerCase();
+
+    // Find any client with this normalized name
+    const existingClient = await Client.findOne({ normalizedClientName });
+
+    console.log('existingClient:', existingClient)
+
+    if (existingClient) {
+        // Name exists
+        return {
+            clientName: existingClient.clientName,
+            normalizedName: normalizedClientName,
+            existingClient: existingClient
+        }
+    };
+    return {
+        // Name is completely new
+        clientName: clientName,
+        normalizedName: normalizedClientName,
+        existingClient: null
+    };
+}
+
 const isIntegerString = (invoiceNumber) =>  {
     console.log('Checking if invoiceNumber only has numbers')
     return /^\d+$/.test(invoiceNumber);
-  }
-
-const findClientNameInList = (nameToFind, clientList) => {
-    const nameSet = new Set(clientList.map(client => client.clientName)); 
-    return nameSet.has(nameToFind)
 }
 
 const checkInvoice = async (invoiceNumber) => {
@@ -74,28 +94,28 @@ const checkInvoice = async (invoiceNumber) => {
     }
 };
 
-const getClientData = async (invoiceStatus, clientName, clientList, isClientMatch) => {
+const getClientData = async (invoiceStatus, clientName, clientList, clientStatus) => {
     console.log('invoiceNumber:', invoiceStatus.invoiceNumber)
 
-    if (isClientMatch) {
+    if (clientStatus.existingClient) {
         const { latestInvoice, otherInvoices } = await getLatestClientInvoiceInternal(clientName);
 
         if (invoiceStatus.existingInvoice) {
             // Mentioned client exists, invoice exists -- FUNCTIONAL
-            return createInvoiceData(clientName, invoiceStatus.invoiceNumber, otherInvoices, clientList, false, false);
+            return createInvoiceData(clientStatus.clientName, invoiceStatus.invoiceNumber, otherInvoices, clientList, false, false);
         } else if (invoiceStatus.isNewInvoice) {
             // Mentioned client exists, mentioned new invoiceNumber || requested new invoice -- FUNCTIONAL
-            return createInvoiceData(clientName, invoiceStatus.invoiceNumber || "0001", otherInvoices, clientList, false, true);
+            return createInvoiceData(clientStatus.clientName, invoiceStatus.invoiceNumber || "0001", otherInvoices, clientList, false, true);
         } else {
             // Mentioned client exists, didn't mention anything about invoice -- FUNCTIONAL
-            return createInvoiceData(clientName, latestInvoice.invoiceNumber, otherInvoices, clientList, false, false);
+            return createInvoiceData(clientStatus.clientName, latestInvoice.invoiceNumber, otherInvoices, clientList, false, false);
         }
     } else if (invoiceStatus.invoiceNumber) {
             // Mentioned client doesn't exist, mentioned an invoiceNumber -- FUNCTIONAL
-        return createInvoiceData(clientName, invoiceStatus.invoiceNumber, [], clientList, true, true);
+        return createInvoiceData(clientStatus.clientName, invoiceStatus.invoiceNumber, [], clientList, true, true);
     } else {
             // Mentioned client doesn't exist, didn't mention anything about invoice
-        return createInvoiceData(clientName, "0001", [], clientList, true, true);
+        return createInvoiceData(clientStatus.clientName, "0001", [], clientList, true, true);
     }
 };
 
@@ -113,6 +133,14 @@ const createUpdatedTranscription = (transcription) => ({
     hours: transcription.hours,
     details: transcription.details,
 })
+
+
+
+
+
+
+
+
 
 
 
@@ -137,3 +165,8 @@ const createUpdatedTranscription = (transcription) => ({
 //         isNewInvoice: true,
 //     }
 // } else
+
+// const findClientNameInList = (nameToFind, clientList) => {
+//     const nameSet = new Set(clientList.map(client => client.clientName)); 
+//     return nameSet.has(nameToFind)
+// }
