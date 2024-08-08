@@ -47,14 +47,19 @@ const checkInvoice = async (invoiceNumber, newInvoice) => {
             existingInvoice: false,
             isNewInvoice: true,
         };
+    } else if (invoiceNumber) {
+        const listedInvoice = await Invoice.findOne({ invoiceNumber })
+        
+        return {
+            existingInvoice: !!listedInvoice,
+            isNewInvoice: !listedInvoice,
+        };
+    } else {
+        return { 
+            existingInvoice: false,
+            isNewInvoice: false,
+        }
     }
-
-    const listedInvoice = await Invoice.findOne({ invoiceNumber })
-    
-    return {
-        existingInvoice: !!listedInvoice,
-        isNewInvoice: !listedInvoice,
-    };
 };
 
 const getClientData = async (invoiceStatus, clientName, invoiceNumber, clientList, isClientMatch) => {
@@ -62,10 +67,10 @@ const getClientData = async (invoiceStatus, clientName, invoiceNumber, clientLis
         const { latestInvoice, otherInvoices } = await getLatestClientInvoiceInternal(clientName);
 
         if (invoiceStatus.existingInvoice) {
-            // Mentioned client exists, invoice exists
+            // Mentioned client exists, invoice exists -- FUNCTIONAL
             return createInvoiceData(clientName, invoiceNumber, otherInvoices, clientList, false, false);
         } else if (invoiceStatus.isNewInvoice) {
-            // Mentioned client exists, mentioned new invoiceNumber || requested new invoice
+            // Mentioned client exists, mentioned new invoiceNumber || requested new invoice -- FUNCTIONAL
             return createInvoiceData(clientName, invoiceNumber || "0001", otherInvoices, clientList, false, true);
         } else {
             // Mentioned client exists, didn't mention anything about invoice
@@ -92,7 +97,6 @@ const createInvoiceData = (clientName, invoiceNumber, otherInvoices, clientList,
 
 
 
-// 
 // const invoiceExists = otherInvoices.some(invoice => invoice.invoiceNumber === invoiceNumber);
 // const invoiceStatus = {
 //     existingInvoice: invoiceExists,
