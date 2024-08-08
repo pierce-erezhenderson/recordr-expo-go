@@ -9,7 +9,7 @@ const manualTestForPrepareTranscription = async () => {
         "hours": "3.25", 
         "details": "Installed new light fixtures in living room and hallway", 
         "newInvoice": "",
-        "invoiceNumber": "9002" 
+        "invoiceNumber": "9999" 
     }
     console.log('Loading clientList, executing getAllClients')
     // const clientList = await getAllClientsInternal(transcription.clientName);
