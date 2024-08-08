@@ -3,8 +3,8 @@ import { openAICompletion } from '../utils/openAI.mjs'
 import Invoice from '../models/invoice.mjs';    // DO I NEED THIS ?
 import Record from '../models/items.mjs';       // DO I NEED THIS ?
 import { createNewClientInternal, getClientInternal } from '../utils/clientUtils.mjs'
-import { createNewInvoiceInternal } from '../utils/invoiceUtils.mjs'
-import { saveItemInternal } from '../utils/itemUtils.mjs'
+import { createNewInvoiceInternal, getInvoiceInternal } from '../utils/invoiceUtils.mjs'
+import { saveItemInternal, handleClientAndOrInvoiceUpdate } from '../utils/itemUtils.mjs'
 import { prepareTranscription } from '../utils/prepareTranscription.mjs'
 
 
@@ -33,6 +33,7 @@ export const generateRecordrNote = async (req, res) => {
         // Step 2 -- Get clients (preliminary)
         const clientList = await getAllClients();
         console.log('clientList:', clientList)
+
         const clientNamesList = clientList.map(({ clientName }) => ({ clientName }));
         console.log('clientNamesList:', clientNamesList)
         
@@ -56,9 +57,9 @@ export const generateRecordrNote = async (req, res) => {
 };
 
 
-// ------ Handles saving new item without 'client' or 'invoice' -------
+// ------ Handles saving new item -------
 
-export const handleNewItemCreateClient = async (req, res) => {
+export const handleNewItem = async (req, res) => {
 
     try {
         console.log('New note, ensuring client then invoice before saving item')
@@ -68,21 +69,16 @@ export const handleNewItemCreateClient = async (req, res) => {
             return res.status(400).json({ error: 'Missing required data' });
         }
 
-        const newClient = await createNewClientInternal(invoiceData.clientName)
-        console.log(`Client:`, newClient)
+        const { clientName, invoiceNumber } = invoiceData
+        const clientAndInvoiceStatus = await handleClientAndOrInvoiceUpdate(clientName, invoiceNumber)
+        
+        const { checkedInvoice } = clientAndInvoiceStatus;
+        const invoiceId = checkedInvoice._id
 
-        const invoice = await createNewInvoiceInternal(invoiceData, newClient)
-        console.log(`Invoice:`, invoice)
+        const savedItem = await saveItemInternal(invoiceId, itemData)
 
-        itemData.invoice = invoice._id
-        console.log(`itemData.invoice`, itemData.invoice)
-
-        const savedItem = await saveItemInternal(invoice, itemData)
-
-        console.log(`savedItem`, savedItem)
-
-        console.log(`Successfully saved item to ${savedItem.invoice}`)
-        res.status(200).json(savedItem);
+        console.log('SavedItem', savedItem)
+        res.status(200).json(updatedInvoiceData, savedItem);
     } catch (error) {
         console.error('Error saving item', error)
         res.status(500).json({ error: 'Failed to save' })
@@ -161,6 +157,11 @@ export const handleUpsertItem = async (req, res) => {
 // **************** currently unused ****************
 
 
+
+        const findInvoiceInList = (invoiceToFind, existingClient) => {
+            const invoiceSet = new Set(existingClient.invoices.map(invoice => invoice.invoiceNumber)); 
+            return invoiceSet.has(invoiceToFind)
+        }
 
 
 export const addRecordrNote = async (req, res) => {

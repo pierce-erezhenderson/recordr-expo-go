@@ -3,7 +3,7 @@ import {
     generateRecordrNote,
     handleUpsertItem,
     handleNewItemCreateInvoice,
-    handleNewItemCreateClient
+    handleNewItem
 } from '../controllers/itemsController.mjs';
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.post('/generateRecordrNote', generateRecordrNote);
 
 router.put('/client/invoice/item', handleUpsertItem);
 router.post('/client/item', handleNewItemCreateInvoice)
-router.post('/item', handleNewItemCreateClient)
+router.post('/item', handleNewItem)
 
 
 // // Invoice item management

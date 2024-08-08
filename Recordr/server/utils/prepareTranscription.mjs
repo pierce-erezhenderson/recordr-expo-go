@@ -37,7 +37,7 @@ export const prepareTranscription = async (transcription, clientList) => {
     }
 };
 
-const checkClientNameAvailability = async (clientName) => {
+export const checkClientNameAvailability = async (clientName) => {
     const normalizedClientName = clientName.toLowerCase();
 
     // Find any client with this normalized name
