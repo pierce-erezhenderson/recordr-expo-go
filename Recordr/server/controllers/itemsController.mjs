@@ -72,13 +72,14 @@ export const handleNewItem = async (req, res) => {
         const { clientName, invoiceNumber } = invoiceData
         const clientAndInvoiceStatus = await handleClientAndOrInvoiceUpdate(clientName, invoiceNumber)
         
-        const { checkedInvoice } = clientAndInvoiceStatus;
-        const invoiceId = checkedInvoice._id
+        const { invoice } = clientAndInvoiceStatus;
 
-        const savedItem = await saveItemInternal(invoiceId, itemData)
+        // SEND BACK INVOICE FOR FRONT END INVOICE SCREEN
+
+        const savedItem = await saveItemInternal(invoice._id, itemData)
 
         console.log('SavedItem', savedItem)
-        res.status(200).json(updatedInvoiceData, savedItem);
+        res.status(200).json({invoice, savedItem});
     } catch (error) {
         console.error('Error saving item', error)
         res.status(500).json({ error: 'Failed to save' })

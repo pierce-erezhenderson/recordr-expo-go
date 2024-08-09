@@ -4,7 +4,7 @@ import { getAllClientsInternal } from './utils/clientUtils.mjs';
 const testSaveItem = async () => {
     const invoiceData = {
         clientName: 'Andy',
-        invoiceNumber: '0001',
+        invoiceNumber: '5001',
     };
     const itemData = {
         date: '2024-10-23',

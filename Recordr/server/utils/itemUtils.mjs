@@ -15,27 +15,18 @@ export const handleClientAndOrInvoiceUpdate = async (clientName, invoiceNumber) 
 
             const newInvoice = await createNewInvoiceInternal(invoiceNumber, newClient)
             console.log(`New Invoice:`, newInvoice)
-            return { 
-                clientName: newClient, 
-                invoice: newInvoice 
-            }
+            return { invoice: newInvoice }
         } else {
-            console.log('Existing client:', existingClient)
-            const existingInvoice = await getInvoiceInternal(invoiceNumber)
+            console.log('Existing client:', checkClient.existingClient)
+            const existingInvoice = await getInvoiceInternal(null, invoiceNumber, checkClient.existingClient.clientName)
 
             if (!existingInvoice) {
-                const newInvoice = await createNewInvoiceInternal(invoiceNumber)
+                const newInvoice = await createNewInvoiceInternal(invoiceNumber, checkClient.existingClient.clientName)
                 console.log(`New Invoice:`, newInvoice)
-                return { 
-                    clientName: existingClient,
-                    invoice: newInvoice
-                }
+                return { invoice: newInvoice }
             }
             console.log('Existing invoice:', existingInvoice)
-            return { 
-                clientName: existingClient,
-                invoice: existingInvoice
-            }
+            return { invoice: existingInvoice }
         }
     } catch (error) {
         console.error('Error checking client and/or invoice:', error)
@@ -64,6 +55,8 @@ export const saveItemInternal = async (invoiceId, itemData) => {
         console.log('Saved item, pushing to invoice')
         invoiceToUpdate.items.push(savedItem._id);
         await invoiceToUpdate.save();
+
+        // SEND BACK INVOICE FOR FRONT END INVOICE SCREEN
 
         console.log('Invoice successfully updated')
         return savedItem;

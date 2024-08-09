@@ -61,7 +61,8 @@ export const getClientInvoicesInternal = async (clientName) => {
 export const createNewClientInternal = async (clientName) => {
     console.log(clientName)
     try {
-        const newClient = new Client({ clientName: clientName })   // need to simplify (think client could just be client)
+        const normalizedClientName = clientName.toLowerCase();
+        const newClient = new Client({ clientName, normalizedClientName })
         await newClient.save();
         return newClient;
     } catch (error) {
@@ -133,7 +134,7 @@ export const ensureClient = async (clientName) => {
 export const updateClientInternal = async (_id, newClientName, currentClientId = null) => {
 
     // WIP!
-    
+
     try {
         const normalizedClientName = newClientName.toLowerCase();
 

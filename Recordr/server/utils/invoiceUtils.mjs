@@ -5,10 +5,23 @@ import Client from '../models/client.mjs';
 
 // ------ Get 'invoice' -------
 
-export const getInvoiceInternal = async (invoiceId) => {
+export const getInvoiceInternal = async (invoiceId, invoiceNumber, clientName) => {
     try {
-        console.log(invoiceId)
-        const invoiceInfo = await Invoice.findOne({ _id: invoiceId })
+        const invoiceInfo = await Invoice.findOne({ 
+            $or: [
+                { _id: invoiceId},
+                {
+                    $and: [
+                        { invoiceNumber: invoiceNumber },
+                        { clientName: clientName }
+                    ]
+                }
+            ]
+        });
+        if (!invoiceInfo) {
+            console.log('No invoice found, returning:', invoiceInfo)
+            return invoiceInfo;
+        }
         console.log('Invoice found, returning:', invoiceInfo)
         return invoiceInfo;
     } catch (error) {
@@ -20,21 +33,23 @@ export const getInvoiceInternal = async (invoiceId) => {
 
 // ------ Create new 'invoice' -------
 
-export const createNewInvoiceInternal = async (invoiceData, client) => {
+export const createNewInvoiceInternal = async (invoiceNumber, clientName) => {  
+    // TEMP - there was an invoiceData object here that was removed, function before should handle destructuring to invoiceNumber and clientName
     try {
-        console.log('Received client:', client);  // Add this line
+        console.log('Received client:', clientName);
 
-        if (!client || !client._id) {
+        if (!clientName) {
             throw new Error('Invalid client object received');
         }
 
         const newInvoice = new Invoice({ 
-            clientName: invoiceData.clientName, 
-            invoiceNumber: invoiceData.newInvoiceNumber
+            clientName: clientName, 
+            invoiceNumber: invoiceNumber
         });
         await newInvoice.save();
 
-        const updatedClient = await Client.findOne({ _id: client._id })
+        const normalizedClientName = clientName.toLowerCase();
+        const updatedClient = await Client.findOne({ normalizedClientName })
 
         console.log('Successfully saved invoice, pushing to client')
         updatedClient.invoices.push(newInvoice._id);
